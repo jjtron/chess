@@ -1,8 +1,8 @@
 'use client'
-import Example from '@/app/ui/Example';
+import Board from '@/app/ui/Board';
 
 export default function Home() {
   return (
-    <Example />
+    <Board />
   );
 }
