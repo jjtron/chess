@@ -3,17 +3,24 @@ import React, {useState} from 'react';
 import {DndContext} from '@dnd-kit/core';
 import {Draggable} from './Draggable';
 import {Droppable} from './Droppable';
+import clsx from 'clsx';
 
 export default function Example() {
   const [parent, setParent] = useState(null);
   const draggable = (
     <Draggable id="draggable">
-      Go ahead, drag me.
+      <img src="/github.png"/>
     </Draggable>
   );
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
+      <img src="/black-square.png"
+           className={clsx(
+              { 'hidden' : parent !== 'droppable',
+                'visible' : parent === 'droppable'
+              })}
+      />
       {/* if the 'parent' var is NULL (!parent === true),
           then the Draggable component exists outside of the Droppable component,
           i.e. the following expression yields <Draggable . . . />;
