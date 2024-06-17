@@ -40,7 +40,7 @@ export default function Board() {
                                                 })
                                                 // [1] is the array storage cell of the draggable being dropped, (i.e., if one is dropped)
                                                 // see init variable
-                                                return draggable ? squares[`${rank}${file}`][1] : 'Drop here'
+                                                return draggable ? squares[`${rank}${file}`][1] : <div className="h-[78px] w-[78px]"></div>
                                             })()}
                                         </Droppable>
                                     </div>
@@ -55,12 +55,21 @@ export default function Board() {
 
     function handleDragEnd({over} : {over: any}) {
         const newSquares = {...squares};
+
+        // ensure no collison with a draggable already in the intended droppable
+        if (over &&
+            Object.keys(newSquares).find((square) => {
+                return square === over.id;
+            })) {
+            return;
+        }
+
         // find the rank-file from which the draggable was moved
         const wasRankFile = Object.keys(newSquares).find((square) => {
             return newSquares[square][0] === activeDraggable;
         });
 
-        if (over && wasRankFile) {
+        if (over && wasRankFile && (over.id !== wasRankFile)) {
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
             delete newSquares[wasRankFile];
             setSquares(newSquares);
