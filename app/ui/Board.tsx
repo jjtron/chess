@@ -6,11 +6,11 @@ import clsx from 'clsx';
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
-    const draggables: any = {
-        'p1': <Draggable id='p1'><img src='/github.png'/></Draggable>,
-        'p2': <Draggable id='p2'><img src='/linkedin.png'/></Draggable>
+    const draggables: {[key: string]: JSX.Element } = {
+        'p1': <Draggable id='p1'><img src='/knight-b.svg'/></Draggable>,
+        'p2': <Draggable id='p2'><img src='/queen-w.svg'/></Draggable>
     }
-    const init: {[key: string]: [string, any]} = {
+    const init: {[key: string]: [string, JSX.Element]} = {
         '11': ['p1', draggables.p1],
         '12': ['p2', draggables.p2]
     };
@@ -29,7 +29,7 @@ export default function Board() {
                                         className={clsx('h-[80px] w-[80px] flex flex-row items-center justify-center',
                                             {
                                                 'bg-white text-black' : n % 2 === 0,
-                                                'bg-black text-white' : n % 2 === 1
+                                                'bg-gray-500 text-white' : n % 2 === 1
                                             }
                                         )}
                                     >
