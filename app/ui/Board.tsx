@@ -5,19 +5,16 @@ import {Droppable} from './Droppable';
 import clsx from 'clsx';
 
 export default function Board() {
-    const [parent, setParent] = useState('droppable11');
-    const [parent2, setParent2] = useState('droppable12');
-    const [activeDraggable, setActiveDraggable] = useState(null);
-    const draggable = (
-      <Draggable id='draggable'>
-        <img src='/github.png'/>
-      </Draggable>
-    );
-    const draggable2 = (
-        <Draggable id='draggable2'>
-          <img src='/linkedin.png'/>
-        </Draggable>
-    );
+    const [activeDraggable, setActiveDraggable] = useState('');
+    const draggables: any = {
+        'p1': <Draggable id='p1'><img src='/github.png'/></Draggable>,
+        'p2': <Draggable id='p2'><img src='/linkedin.png'/></Draggable>
+    }
+    const init: {[key: string]: [string, any]} = {
+        '11': ['p1', draggables.p1],
+        '12': ['p2', draggables.p2]
+    };
+    const [squares, setSquares] = useState(init);
 
     return (
         <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
@@ -29,25 +26,22 @@ export default function Board() {
                                 const n = i + j;
                                 return (
                                     <div key={file} 
-                                        className={clsx('h-[80px] w-[80px] flex items-center',
+                                        className={clsx('h-[80px] w-[80px] flex flex-row items-center justify-center',
                                             {
                                                 'bg-white text-black' : n % 2 === 0,
                                                 'bg-black text-white' : n % 2 === 1
                                             }
                                         )}
                                     >
-                                        {rank}{file}
-                                        <Droppable id={`droppable${rank}${file}`} >
+                                        <Droppable id={`${rank}${file}`} >
                                             {(() => {
-                                                if (parent === `droppable${rank}${file}`) {
-                                                    return draggable;
-                                                } else if (parent2 === `droppable${rank}${file}`) {
-                                                    return draggable2;
-                                                } else {
-                                                    return 'Drop here';
-                                                }
+                                                const draggable = Object.keys(squares).find((square) => {
+                                                    return square === `${rank}${file}`;
+                                                })
+                                                // [1] is the array storage cell of the draggable being dropped, (i.e., if one is dropped)
+                                                // see init variable
+                                                return draggable ? squares[`${rank}${file}`][1] : 'Drop here'
                                             })()}
-                                            {/* {parent === `droppable${rank}${file}` ? draggable : 'Drop here'} */}
                                         </Droppable>
                                     </div>
                                 )
@@ -60,10 +54,16 @@ export default function Board() {
     );
 
     function handleDragEnd({over} : {over: any}) {
-        if (activeDraggable === 'draggable') {
-            setParent(over ? over.id : null);
-        } else {
-            setParent2(over ? over.id : null);
+        const newSquares = {...squares};
+        // find the rank-file from which the draggable was moved
+        const wasRankFile = Object.keys(newSquares).find((square) => {
+            return newSquares[square][0] === activeDraggable;
+        });
+
+        if (over && wasRankFile) {
+            newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
+            delete newSquares[wasRankFile];
+            setSquares(newSquares);
         }
     }
 
