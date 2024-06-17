@@ -1,20 +1,12 @@
 import React, {useState} from 'react';
 import {DndContext} from '@dnd-kit/core';
-import {Draggable} from './Draggable';
 import {Droppable} from './Droppable';
+import {draggables, setup} from '../lib/pieces';
 import clsx from 'clsx';
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
-    const draggables: {[key: string]: JSX.Element } = {
-        'p1': <Draggable id='p1'><img src='/knight-b.svg'/></Draggable>,
-        'p2': <Draggable id='p2'><img src='/queen-w.svg'/></Draggable>
-    }
-    const init: {[key: string]: [string, JSX.Element]} = {
-        '11': ['p1', draggables.p1],
-        '12': ['p2', draggables.p2]
-    };
-    const [squares, setSquares] = useState(init);
+    const [squares, setSquares] = useState(setup);
 
     return (
         <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
