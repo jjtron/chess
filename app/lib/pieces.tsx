@@ -19,6 +19,24 @@ export const draggables: {[key: string]: JSX.Element } = {
     'bw2': <Draggable id='bw2'><Image priority src='/bishop-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'kw': <Draggable id='kw'><Image priority src='/king-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'qw': <Draggable id='qw'><Image priority src='/queen-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+
+    'pb1': <Draggable id='pb1'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb2': <Draggable id='pb2'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb3': <Draggable id='pb3'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb4': <Draggable id='pb4'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb5': <Draggable id='pb5'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb6': <Draggable id='pb6'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb7': <Draggable id='pb7'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pb8': <Draggable id='pb8'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+
+    'rb1': <Draggable id='rb1'><Image priority src='/rook-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'rb2': <Draggable id='rb2'><Image priority src='/rook-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kb1': <Draggable id='kb1'><Image priority src='/knight-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kb2': <Draggable id='kb2'><Image priority src='/knight-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'bb1': <Draggable id='bb1'><Image priority src='/bishop-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'bb2': <Draggable id='bb2'><Image priority src='/bishop-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kb': <Draggable id='kb'><Image priority src='/king-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'qb': <Draggable id='qb'><Image priority src='/queen-b.svg' width="60" height="60" alt="piece"/></Draggable>,
 }
 export const setup: {[key: string]: [string, JSX.Element]} = {
     'a2': ['pw1', draggables.pw1],
@@ -36,5 +54,22 @@ export const setup: {[key: string]: [string, JSX.Element]} = {
     'e1': ['qw', draggables.qw],
     'f1': ['bw2', draggables.bw2],
     'g1': ['kw2', draggables.kw2],
-    'h1': ['rw2', draggables.rw2]
+    'h1': ['rw2', draggables.rw2],
+
+    'a7': ['pb1', draggables.pb1],
+    'b7': ['pb2', draggables.pb2],
+    'c7': ['pb3', draggables.pb3],
+    'd7': ['pb4', draggables.pb4],
+    'e7': ['pb5', draggables.pb5],
+    'f7': ['pb6', draggables.pb6],
+    'g7': ['pb7', draggables.pb7],
+    'h7': ['pb8', draggables.pb8],
+    'a8': ['rb1', draggables.rb1],
+    'b8': ['kb1', draggables.kb1],
+    'c8': ['bb1', draggables.bb1],
+    'd8': ['kb', draggables.kb],
+    'e8': ['qb', draggables.qb],
+    'f8': ['bb2', draggables.bb2],
+    'g8': ['kb2', draggables.kb2],
+    'h8': ['rb2', draggables.rb2]
 };
