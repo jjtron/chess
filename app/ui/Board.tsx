@@ -14,10 +14,10 @@ export default function Board() {
     return (
         <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart} sensors={sensors}>
             <div className='flex flex-col items-center'>
-                {[1, 2, 3, 4 ,5 ,6, 7, 8].map((rank: number, i: number) => {
+                {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
                         <div key={rank} className='flex flex-row'>
-                            {[1, 2, 3, 4 ,5 ,6, 7, 8].map((file: number, j: number) => {
+                            {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((file: string, j: number) => {
                                 const n = i + j;
                                 return (
                                     <div key={file} 
@@ -28,14 +28,14 @@ export default function Board() {
                                             }
                                         )}
                                     >
-                                        <Droppable id={`${rank}${file}`} >
+                                        <Droppable id={`${file}${rank}`} >
                                             {(() => {
                                                 const draggable = Object.keys(squares).find((square) => {
-                                                    return square === `${rank}${file}`;
+                                                    return square === `${file}${rank}`;
                                                 })
                                                 // [1] is the array storage cell of the draggable being dropped, (i.e., if one is dropped)
                                                 // see init variable
-                                                return draggable ? squares[`${rank}${file}`][1] : <div className="h-[78px] w-[78px]"></div>
+                                                return draggable ? squares[`${file}${rank}`][1] : <div className="h-[78px] w-[78px]"></div>
                                             })()}
                                         </Droppable>
                                     </div>
@@ -60,13 +60,13 @@ export default function Board() {
         }
 
         // find the rank-file from which the draggable was moved
-        const wasRankFile = Object.keys(newSquares).find((square) => {
+        const wasFileRank = Object.keys(newSquares).find((square) => {
             return newSquares[square][0] === activeDraggable;
         });
 
-        if (over && wasRankFile && (over.id !== wasRankFile)) {
+        if (over && wasFileRank && (over.id !== wasFileRank)) {
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
-            delete newSquares[wasRankFile];
+            delete newSquares[wasFileRank];
             setSquares(newSquares);
         }
     }
