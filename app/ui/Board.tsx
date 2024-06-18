@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {DndContext} from '@dnd-kit/core';
+import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
 import {Droppable} from './Droppable';
 import {draggables, setup} from '../lib/pieces';
 import clsx from 'clsx';
@@ -7,9 +7,12 @@ import clsx from 'clsx';
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
+    const mouseSensor = useSensor(MouseSensor)
+    const touchSensor = useSensor(TouchSensor)
+    const sensors = useSensors(mouseSensor, touchSensor)
 
     return (
-        <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+        <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart} sensors={sensors}>
             <div className='flex flex-col items-center'>
                 {[1, 2, 3, 4 ,5 ,6, 7, 8].map((rank: number, i: number) => {
                     return (
