@@ -1,23 +1,24 @@
 import {Draggable} from '../ui/Draggable';
+import Image from 'next/image';
 
 export const draggables: {[key: string]: JSX.Element } = {
-    'pw1': <Draggable id='pw1'><img src='/pawn-w.svg'/></Draggable>,
-    'pw2': <Draggable id='pw2'><img src='/pawn-w.svg'/></Draggable>,
-    'pw3': <Draggable id='pw3'><img src='/pawn-w.svg'/></Draggable>,
-    'pw4': <Draggable id='pw4'><img src='/pawn-w.svg'/></Draggable>,
-    'pw5': <Draggable id='pw5'><img src='/pawn-w.svg'/></Draggable>,
-    'pw6': <Draggable id='pw6'><img src='/pawn-w.svg'/></Draggable>,
-    'pw7': <Draggable id='pw7'><img src='/pawn-w.svg'/></Draggable>,
-    'pw8': <Draggable id='pw8'><img src='/pawn-w.svg'/></Draggable>,
+    'pw1': <Draggable id='pw1'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw2': <Draggable id='pw2'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw3': <Draggable id='pw3'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw4': <Draggable id='pw4'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw5': <Draggable id='pw5'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw6': <Draggable id='pw6'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw7': <Draggable id='pw7'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'pw8': <Draggable id='pw8'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
 
-    'rw1': <Draggable id='rw1'><img src='/rook-w.svg'/></Draggable>,
-    'rw2': <Draggable id='rw2'><img src='/rook-w.svg'/></Draggable>,
-    'kw1': <Draggable id='kw1'><img src='/knight-w.svg'/></Draggable>,
-    'kw2': <Draggable id='kw2'><img src='/knight-w.svg'/></Draggable>,
-    'bw1': <Draggable id='bw1'><img src='/bishop-w.svg'/></Draggable>,
-    'bw2': <Draggable id='bw2'><img src='/bishop-w.svg'/></Draggable>,
-    'kw': <Draggable id='kw'><img src='/king-w.svg'/></Draggable>,
-    'qw': <Draggable id='qw'><img src='/queen-w.svg'/></Draggable>,
+    'rw1': <Draggable id='rw1'><Image priority src='/rook-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'rw2': <Draggable id='rw2'><Image priority src='/rook-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kw1': <Draggable id='kw1'><Image priority src='/knight-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kw2': <Draggable id='kw2'><Image priority src='/knight-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'bw1': <Draggable id='bw1'><Image priority src='/bishop-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'bw2': <Draggable id='bw2'><Image priority src='/bishop-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'kw': <Draggable id='kw'><Image priority src='/king-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'qw': <Draggable id='qw'><Image priority src='/queen-w.svg' width="60" height="60" alt="piece"/></Draggable>,
 }
 export const setup: {[key: string]: [string, JSX.Element]} = {
     '71': ['pw1', draggables.pw1],
