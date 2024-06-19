@@ -75,10 +75,11 @@ export default function Board() {
         if (over && wasFileRank && (over.id !== wasFileRank)) {
             /*  Determine the gameClient move notation from its list of available, legal moves
                 by searching out the 'src' Square that matches the location of the draggable source
-                1) Consider it's source coordinates: wasFileRank (file and rank)
-                   and it's pieceType (1st char of over.id)
             */
-            const [file, rank] = wasFileRank.split('');
+            // 1) Consider it's source coordinates: wasFileRank (file and rank)
+            // and it's pieceType (1st char of over.id)
+            const [sourceFile, sourceRank] = wasFileRank.split('');
+            const [destFile, destRank] = over.id.split('');
             let pieceType: string = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0)}` : 'pawn';
             switch (pieceType) {
                 case 'pawn': break;
@@ -88,20 +89,32 @@ export default function Board() {
                 case 'q': pieceType = 'queen'; break;
                 case 'k': pieceType = 'king'; break;
             }
+            ;
             // 2) Make a copy of the notated moves status
-            const nextMoves = JSON.parse(JSON.stringify(gameClient.getStatus().notatedMoves));
+            const nextMoves = gameClient.getStatus().notatedMoves;
+            //console.log(nextMoves)
             // search through it for a match of the src in terms of rank, file, and pieceType
-            const notation: string | undefined = Object.keys(nextMoves).find((move: any) => {
-                return (nextMoves[move].src.rank === Number(rank) && 
-                nextMoves[move].src.file === file && 
-                nextMoves[move].src.piece.type === pieceType);
+            const notation = Object.keys(nextMoves).find((move: any) => {
+                return (nextMoves[move].src.rank === Number(sourceRank) &&
+                        nextMoves[move].src.file === sourceFile &&
+                        nextMoves[move].src.piece.type.toLowerCase() === pieceType &&
+                        nextMoves[move].dest.rank === Number(destRank) &&
+                        nextMoves[move].dest.file === destFile)
             });
-            if (notation) gameClient.move(notation);
-
-            // create a new setup configuration
+            if (notation) {
+                gameClient.move(notation);
+            } else {
+                // whatever the move requested, it is not legal
+                return;
+            }
+            // Create a new setup configuration
+            // 1) assign the active draggable identifier and its corresponding draggable object to the over.id
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
+            // 2) delete the square from the newSquares configuration from which the draggable came from
             delete newSquares[wasFileRank];
-            setSquares(newSquares);
+            // 3) set the new config
+            // setSquares(newSquares);
+            getBlackMove(newSquares);
         }
     }
 
@@ -109,12 +122,35 @@ export default function Board() {
         setActiveDraggable(e.active.id);
     }
 
-    function getBlackMove(move: string) {
-        const possibleMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
-        const movesArray = Object.keys(possibleMoves);
+    async function getBlackMove(newSquares: any) {
+
+        // pick a next move at random
+        const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
+        const movesArray = Object.keys(notatedMoves);
         const max: number = movesArray.length;
         const min: number = 0;
-        const randomPick = Math.floor(Math.random() * (max - min) + min);
-        return movesArray[randomPick];
+        const nextMoveIndex = Math.floor(Math.random() * (max - min) + min);
+        const nextMove = movesArray[nextMoveIndex];
+
+        // find the source (file, rank, and pieceType of the next move)
+        const sourceFile = notatedMoves[nextMove].src.file;
+        const sourceRank = notatedMoves[nextMove].src.rank;
+        const destFile = notatedMoves[nextMove].dest.file;
+        const destRank = notatedMoves[nextMove].dest.rank;
+
+        // get the nextmove draggable component
+        const nextMoveDraggable = newSquares[`${sourceFile}${sourceRank}`];
+
+        // `${file}${rank}` is the location of the source
+        // pieceType is pawn, knight, bishop, etc
+        // nextMoveDraggable[0] is the identity of the draggable component JSX.Element
+        // nextMoveDraggable[1] is the actual draggable component JSX.Element
+        // nextMove is the notation to be passed into the gameClient.move(<whatever>);
+        gameClient.move(nextMove);
+
+        newSquares[`${destFile}${destRank}`] = [nextMoveDraggable[0], nextMoveDraggable[1]];
+        delete newSquares[`${sourceFile}${sourceRank}`];
+        // await new Promise((resolve) => setTimeout(resolve, 5000));
+        setSquares(newSquares);
     }
   }
