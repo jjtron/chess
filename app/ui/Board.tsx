@@ -15,6 +15,13 @@ export default function Board() {
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
 
+    useEffect(() => {
+        const nextMoves = gameClient.getStatus().notatedMoves;
+        if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
+            getBlackMove();
+        }
+    });
+
     return (
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
                     onDragEnd={handleDragEnd}
@@ -77,7 +84,7 @@ export default function Board() {
                 by searching out the 'src' Square that matches the location of the draggable source
             */
             // 1) Consider it's source coordinates: wasFileRank (file and rank)
-            // and it's pieceType (1st char of over.id)
+            //    and it's pieceType (1st char of over.id)
             const [sourceFile, sourceRank] = wasFileRank.split('');
             const [destFile, destRank] = over.id.split('');
             let pieceType: string = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0)}` : 'pawn';
@@ -92,7 +99,7 @@ export default function Board() {
             ;
             // 2) Make a copy of the notated moves status
             const nextMoves = gameClient.getStatus().notatedMoves;
-            //console.log(nextMoves)
+
             // search through it for a match of the src in terms of rank, file, and pieceType
             const notation = Object.keys(nextMoves).find((move: any) => {
                 return (nextMoves[move].src.rank === Number(sourceRank) &&
@@ -113,8 +120,7 @@ export default function Board() {
             // 2) delete the square from the newSquares configuration from which the draggable came from
             delete newSquares[wasFileRank];
             // 3) set the new config
-            // setSquares(newSquares);
-            getBlackMove(newSquares);
+            setSquares(newSquares);
         }
     }
 
@@ -122,7 +128,8 @@ export default function Board() {
         setActiveDraggable(e.active.id);
     }
 
-    async function getBlackMove(newSquares: any) {
+    async function getBlackMove() {
+        const newSquares = {...squares};
 
         // pick a next move at random
         const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
@@ -150,7 +157,7 @@ export default function Board() {
 
         newSquares[`${destFile}${destRank}`] = [nextMoveDraggable[0], nextMoveDraggable[1]];
         delete newSquares[`${sourceFile}${sourceRank}`];
-        // await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setSquares(newSquares);
     }
   }
