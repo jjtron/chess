@@ -4,9 +4,9 @@ import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd
 import {Droppable} from './Droppable';
 import {draggables, setup} from '../lib/pieces';
 import clsx from 'clsx';
-import chess from 'chess';
+import chess, { Square } from 'chess';
 
-export const gameClient = chess.create();
+export const gameClient = chess.create({ PGN : true });
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -73,15 +73,48 @@ export default function Board() {
         });
 
         if (over && wasFileRank && (over.id !== wasFileRank)) {
+            /*  Determine the gameClient move notation from its list of available, legal moves
+                by searching out the 'src' Square that matches the location of the draggable source
+                1) Consider it's source coordinates: wasFileRank (file and rank)
+                   and it's pieceType (1st char of over.id)
+            */
+            const [file, rank] = wasFileRank.split('');
+            let pieceType: string = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0)}` : 'pawn';
+            switch (pieceType) {
+                case 'pawn': break;
+                case 'n': pieceType = 'knight'; break;
+                case 'b': pieceType = 'bishop'; break;
+                case 'r': pieceType = 'rook'; break;
+                case 'q': pieceType = 'queen'; break;
+                case 'k': pieceType = 'king'; break;
+            }
+            // 2) Make a copy of the notated moves status
+            const nextMoves = JSON.parse(JSON.stringify(gameClient.getStatus().notatedMoves));
+            // search through it for a match of the src in terms of rank, file, and pieceType
+            const notation: string | undefined = Object.keys(nextMoves).find((move: any) => {
+                return (nextMoves[move].src.rank === Number(rank) && 
+                nextMoves[move].src.file === file && 
+                nextMoves[move].src.piece.type === pieceType);
+            });
+            if (notation) gameClient.move(notation);
+
+            // create a new setup configuration
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
             delete newSquares[wasFileRank];
             setSquares(newSquares);
-            const gameClientMove = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0).toUpperCase()}${over.id}` : over.id;
-            gameClient.move(gameClientMove);
         }
     }
 
     function handleDragStart(e: any){
         setActiveDraggable(e.active.id);
+    }
+
+    function getBlackMove(move: string) {
+        const possibleMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
+        const movesArray = Object.keys(possibleMoves);
+        const max: number = movesArray.length;
+        const min: number = 0;
+        const randomPick = Math.floor(Math.random() * (max - min) + min);
+        return movesArray[randomPick];
     }
   }
