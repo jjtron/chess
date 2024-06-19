@@ -76,7 +76,8 @@ export default function Board() {
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
             delete newSquares[wasFileRank];
             setSquares(newSquares);
-            gameClient.move(over.id);
+            const gameClientMove = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0).toUpperCase()}${over.id}` : over.id;
+            gameClient.move(gameClientMove);
         }
     }
 
