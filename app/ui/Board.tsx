@@ -1,18 +1,26 @@
-import React, {useState} from 'react';
+'use client'
+import React, {useState, useEffect} from 'react';
 import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
 import {Droppable} from './Droppable';
 import {draggables, setup} from '../lib/pieces';
 import clsx from 'clsx';
+import chess from 'chess';
+
+export const gameClient = chess.create();
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const mouseSensor = useSensor(MouseSensor)
-    const touchSensor = useSensor(TouchSensor)
-    const sensors = useSensors(mouseSensor, touchSensor)
+    const mouseSensor = useSensor(MouseSensor);
+    const touchSensor = useSensor(TouchSensor);
+    const sensors = useSensors(mouseSensor, touchSensor);
 
     return (
-        <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart} sensors={sensors}>
+        <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
+                    onDragEnd={handleDragEnd}
+                    onDragStart={handleDragStart}
+                    sensors={sensors}
+        >
             <div className='flex flex-col items-center'>
                 {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
@@ -68,6 +76,7 @@ export default function Board() {
             newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
             delete newSquares[wasFileRank];
             setSquares(newSquares);
+            gameClient.move(over.id);
         }
     }
 
