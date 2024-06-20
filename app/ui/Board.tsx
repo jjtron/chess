@@ -11,7 +11,7 @@ export const gameClient = chess.create({ PGN : true });
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const [blackMoveCoords, setBlackMoveCoords] = useState('');
+    const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
@@ -20,6 +20,8 @@ export default function Board() {
         const nextMoves = gameClient.getStatus().notatedMoves;
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
             getBlackMove();
+        } else {
+            resetBlackMoveHighlighter();
         }
     });
 
@@ -40,7 +42,8 @@ export default function Board() {
                                         className={clsx('h-[80px] w-[80px] flex flex-row items-center justify-center',
                                             { 'bg-white text-black' : n % 2 === 0,
                                               'bg-gray-500 text-white' : n % 2 === 1,
-                                              'border-4 border-green-500' : `${file}${rank}` === blackMoveCoords }
+                                              'bg-red-500 transition-color duration-1000 ease-in-out' : `${file}${rank}` === blackMoveHighlight,
+                                              'transition-color duration-1000 ease-in-out' : `${file}${rank}` === '' }
                                         )}
                                     >
                                         <Droppable id={`${file}${rank}`} >
@@ -155,10 +158,18 @@ export default function Board() {
         // nextMove is the notation to be passed into the gameClient.move(<whatever>);
         gameClient.move(nextMove);
 
+        // create new setup configuration
         newSquares[`${destFile}${destRank}`] = [nextMoveDraggable[0], nextMoveDraggable[1]];
         delete newSquares[`${sourceFile}${sourceRank}`];
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setBlackMoveCoords(`${destFile}${destRank}`);
+
+        // highlight the square where black is going to move to
+        setBlackMoveHighlight(`${destFile}${destRank}`);
+        
         setSquares(newSquares);
+    }
+
+    async function resetBlackMoveHighlighter() {
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+        setBlackMoveHighlight(``);
     }
   }
