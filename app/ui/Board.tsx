@@ -117,7 +117,6 @@ export default function Board() {
                     const draggable = draggables[draggableId]; 
                     capturedPieces[draggableId] = draggable;
                 }
-                console.log(capturedPieces);
                 
             } else {
                 // whatever the move requested, it is not legal
@@ -160,12 +159,17 @@ export default function Board() {
         // get the nextmove draggable component
         const nextMoveDraggable = newSquares[`${sourceFile}${sourceRank}`];
 
-        // `${file}${rank}` is the location of the source
+        // `${sourceFile}${sourceRank}` is the location of the source
         // pieceType is pawn, knight, bishop, etc
         // nextMoveDraggable[0] is the identity of the draggable component JSX.Element
         // nextMoveDraggable[1] is the actual draggable component JSX.Element
         // nextMove is the notation to be passed into the gameClient.move(<whatever>);
-        gameClient.move(nextMove);
+        const r = gameClient.move(nextMove);
+        if (r.move.capturedPiece) {
+            const draggableId = newSquares[`${destFile}${destRank}`][0];
+            const draggable = draggables[draggableId]; 
+            capturedPieces[draggableId] = draggable;
+        }
 
         // create new setup configuration
         newSquares[`${destFile}${destRank}`] = [nextMoveDraggable[0], nextMoveDraggable[1]];
