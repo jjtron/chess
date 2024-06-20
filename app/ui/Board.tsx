@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import chess, { Square } from 'chess';
 
 export const gameClient = chess.create({ PGN : true });
+gameClient.on('capture', () => { console.log('Capture!'); })
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -20,8 +21,7 @@ export default function Board() {
         const nextMoves = gameClient.getStatus().notatedMoves;
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
             getBlackMove();
-        } else {
-            resetBlackMoveHighlighter();
+            setTimeout(() => setBlackMoveHighlight(``), 2000);
         }
     });
 
@@ -40,10 +40,9 @@ export default function Board() {
                                 return (
                                     <div key={file} 
                                         className={clsx('h-[80px] w-[80px] flex flex-row items-center justify-center',
-                                            { 'bg-white text-black' : n % 2 === 0,
-                                              'bg-gray-500 text-white' : n % 2 === 1,
-                                              'bg-red-500 transition-color duration-1000 ease-in-out' : `${file}${rank}` === blackMoveHighlight,
-                                              'transition-color duration-1000 ease-in-out' : `${file}${rank}` === '' }
+                                            { 'bg-white text-black transition-color duration-1000' : n % 2 === 0 && blackMoveHighlight !== `${file}${rank}`,
+                                              'bg-gray-500 text-white transition-color duration-1000' : n % 2 === 1 && blackMoveHighlight !== `${file}${rank}`,
+                                              'bg-red-500 transition-color duration-1000 ease-out' : `${file}${rank}` === blackMoveHighlight}
                                         )}
                                     >
                                         <Droppable id={`${file}${rank}`} >
@@ -158,10 +157,5 @@ export default function Board() {
         setBlackMoveHighlight(`${destFile}${destRank}`);
         
         setSquares(newSquares);
-    }
-
-    async function resetBlackMoveHighlighter() {
-        await new Promise((resolve) => setTimeout(resolve, 4000));
-        setBlackMoveHighlight(``);
     }
   }
