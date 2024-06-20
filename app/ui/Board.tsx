@@ -66,6 +66,7 @@ export default function Board() {
                         </div>
                     )
                 })}
+                <a href="https://greenchess.net/index.php">Chess piece images by Green Chess</a>
             </div>
         </DndContext>
     );
