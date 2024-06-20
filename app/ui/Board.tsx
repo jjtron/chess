@@ -69,14 +69,6 @@ export default function Board() {
     function handleDragEnd({over} : {over: any}) {
         const newSquares = {...squares};
 
-        // ensure no collison with a draggable already in the intended droppable
-        if (over &&
-            Object.keys(newSquares).find((square) => {
-                return square === over.id;
-            })) {
-            return;
-        }
-
         // find the rank-file from which the draggable was moved
         const wasFileRank = Object.keys(newSquares).find((square) => {
             return newSquares[square][0] === activeDraggable;
