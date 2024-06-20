@@ -4,18 +4,19 @@ import {DndContext} from '@dnd-kit/core';
 import {Draggable} from './Draggable';
 import {Droppable} from './Droppable';
 import clsx from 'clsx';
+import Image from 'next/image';
 
 export default function Example() {
   const [parent, setParent] = useState(null);
   const draggable = (
     <Draggable id="draggable">
-      <img src="/github.png"/>
+      <Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/>
     </Draggable>
   );
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <img src="/black-square.png"
+      <Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"
            className={clsx(
               { 'hidden' : parent !== 'droppable',
                 'visible' : parent === 'droppable'
