@@ -8,7 +8,8 @@ import chess, { Square } from 'chess';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
-gameClient.on('checkmate', () => { checkMate = true; })
+gameClient.on('checkmate', () => { checkMate = true; });
+export var capturedPieces: {[key: string]: JSX.Element} = {};
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -72,6 +73,7 @@ export default function Board() {
     );
 
     function handleDragEnd({over} : {over: any}) {
+      try {
         const newSquares = {...squares};
 
         // find the rank-file from which the draggable was moved
@@ -109,10 +111,17 @@ export default function Board() {
                         nextMoves[move].dest.file === destFile)
             });
             if (notation) {
-                gameClient.move(notation);
+                const r = gameClient.move(notation);
+                if (r.move.capturedPiece) {
+                    const draggableId = newSquares[over.id][0];
+                    const draggable = draggables[draggableId]; 
+                    capturedPieces[draggableId] = draggable;
+                }
+                console.log(capturedPieces);
+                
             } else {
                 // whatever the move requested, it is not legal
-                return;
+                throw Error('Invalid notation')
             }
             // Create a new setup configuration
             // 1) assign the active draggable identifier and its corresponding draggable object to the over.id
@@ -122,6 +131,9 @@ export default function Board() {
             // 3) set the new config
             setSquares(newSquares);
         }
+      } catch(e) {
+        console.log(e);
+      }
     }
 
     function handleDragStart(e: any){
