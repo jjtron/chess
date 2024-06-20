@@ -7,7 +7,8 @@ import clsx from 'clsx';
 import chess, { Square } from 'chess';
 
 export const gameClient = chess.create({ PGN : true });
-gameClient.on('capture', () => { console.log('Capture!'); })
+export var checkMate: boolean = false;
+gameClient.on('checkmate', () => { checkMate = true; })
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -19,6 +20,10 @@ export default function Board() {
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
+        if (checkMate) {
+            alert('Checkmate');
+            return;
+        }
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
             getBlackMove();
             setTimeout(() => setBlackMoveHighlight(``), 2000);
