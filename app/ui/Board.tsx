@@ -74,7 +74,7 @@ export default function Board() {
                                 const n = i + j;
                                 return (
                                     <div key={file} 
-                                        className={clsx('h-[80px] w-[80px] flex flex-row items-center justify-center',
+                                        className={clsx('md:h-[80px] md:w-[80px] h-[40px] w-[40px] flex flex-row items-center justify-center',
                                             { 'bg-white text-black transition-color duration-1000' : n % 2 === 0 && blackMoveHighlight !== `${file}${rank}`,
                                               'bg-gray-500 text-white transition-color duration-1000' : n % 2 === 1 && blackMoveHighlight !== `${file}${rank}`,
                                               'bg-red-500 transition-color duration-1000 ease-out' : `${file}${rank}` === blackMoveHighlight}
@@ -87,7 +87,7 @@ export default function Board() {
                                                 })
                                                 // [1] is the array storage cell of the draggable being dropped, (i.e., if one is dropped)
                                                 // see init variable
-                                                return draggable ? squares[`${file}${rank}`][1] : <div className="h-[78px] w-[78px]"></div>
+                                                return draggable ? squares[`${file}${rank}`][1] : <div className="md:h-[78px] md:w-[78px] h-[38px] w-[38px]"></div>
                                             })()}
                                         </Droppable>
                                     </div>
