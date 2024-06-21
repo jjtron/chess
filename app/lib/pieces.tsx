@@ -73,3 +73,5 @@ export const setup: {[key: string]: [string, JSX.Element]} = {
     'g8': ['nb2', draggables.nb2],
     'h8': ['rb2', draggables.rb2]
 };
+
+export var capturedPieces: {[key: string]: JSX.Element} = {};
