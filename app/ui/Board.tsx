@@ -27,8 +27,10 @@ export default function Board() {
         }
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
             ( async () => {
+              try {
                 // get destination and source squares
-                const blackMove: { dest: string; src: string } = await getBlackMove(squares, gameClient);
+                const blackMove: { dest: string; src: string } | undefined = await getBlackMove(squares, gameClient);
+                if (blackMove === undefined) { throw Error(''); }
 
                 // create new setup configuration
                 const nextMoveDraggable: [ string, JSX.Element ] = squares[blackMove.src];
@@ -41,9 +43,13 @@ export default function Board() {
                 
                 // set new squares configuration
                 setSquares(newSquares);
-                
+
                 // un-highlight the square where black is going to move to
-                setTimeout(() => setBlackMoveHighlight(``), 2000);
+                setTimeout(() => setBlackMoveHighlight(``), 1500);
+
+              } catch(e) {
+                    console.log(e);
+              }
             })();
         }
     });

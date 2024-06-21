@@ -2,7 +2,7 @@ import {draggables, capturedPieces} from './pieces';
 import {Square} from 'chess';
 
 export async function getBlackMove(squares: any, gameClient: any) {
-
+  try {
     // pick a next move at random
     const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
     const movesArray = Object.keys(notatedMoves);
@@ -28,6 +28,9 @@ export async function getBlackMove(squares: any, gameClient: any) {
         const draggable = draggables[draggableId]; 
         capturedPieces[draggableId] = draggable;
     }
-
     return { dest: `${destFile}${destRank}`, src: `${sourceFile}${sourceRank}`};
+
+  } catch(e) {
+        console.log(e);
+  }
 }
