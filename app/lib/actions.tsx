@@ -34,3 +34,59 @@ export async function getBlackMove(squares: any, gameClient: any) {
         console.log(e);
   }
 }
+
+export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any, overId: string) {
+  try {
+    // find the rank-file from which the draggable was moved
+    const wasFileRank = Object.keys(squares).find((square) => {
+        return squares[square][0] === activeDraggable;
+    });
+
+    if (overId && wasFileRank && (overId !== wasFileRank)) {
+        /*  Determine the gameClient move notation from its list of available, legal moves
+            by searching out the 'src' Square that matches the location of the draggable source
+        */
+        // 1) Consider it's source coordinates: wasFileRank (file and rank)
+        //    and it's pieceType (1st char of over.id)
+        const [sourceFile, sourceRank] = wasFileRank.split('');
+        const [destFile, destRank] = overId.split('');
+        let pieceType: string = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0)}` : 'pawn';
+        switch (pieceType) {
+            case 'pawn': break;
+            case 'n': pieceType = 'knight'; break;
+            case 'b': pieceType = 'bishop'; break;
+            case 'r': pieceType = 'rook'; break;
+            case 'q': pieceType = 'queen'; break;
+            case 'k': pieceType = 'king'; break;
+        }
+        ;
+        // 2) Make a copy of the notated moves status
+        const nextMoves = gameClient.getStatus().notatedMoves;
+
+        // search through it for a match of the src in terms of rank, file, and pieceType
+        const notation = Object.keys(nextMoves).find((move: any) => {
+            return (nextMoves[move].src.rank === Number(sourceRank) &&
+                    nextMoves[move].src.file === sourceFile &&
+                    nextMoves[move].src.piece.type.toLowerCase() === pieceType &&
+                    nextMoves[move].dest.rank === Number(destRank) &&
+                    nextMoves[move].dest.file === destFile)
+        });
+        if (notation) {
+            const r = gameClient.move(notation);
+            if (r.move.capturedPiece) {
+                const draggableId = squares[overId][0];
+                const draggable = draggables[draggableId]; 
+                capturedPieces[draggableId] = draggable;
+            }
+            
+        } else {
+            // whatever the move requested, it is not legal
+            throw Error('Invalid notation')
+        }
+
+        return { dest: `${destFile}${destRank}`, src: `${sourceFile}${sourceRank}`};
+    } 
+  } catch(e) {
+        console.log(e);
+  }
+}

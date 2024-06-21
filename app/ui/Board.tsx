@@ -5,7 +5,7 @@ import {Droppable} from './Droppable';
 import {draggables, setup, capturedPieces} from '../lib/pieces';
 import clsx from 'clsx';
 import chess, { Square } from 'chess';
-import {getBlackMove} from '../lib/actions';
+import {getBlackMove, getWhiteMove} from '../lib/actions';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -95,64 +95,21 @@ export default function Board() {
         </DndContext>
     );
 
-    function handleDragEnd({over} : {over: any}) {
+    async function handleDragEnd({over} : {over: any}) {
       try {
+
+        const whiteMove: { dest: string; src: string } | undefined = getWhiteMove(squares, activeDraggable, gameClient, over.id);
+        if (whiteMove === undefined) { throw Error('Failure to register white move'); }
+
+        // Create a new setup configuration
         const newSquares = {...squares};
+        // 1) assign the active draggable identifier and its corresponding draggable object to the over.id
+        newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
+        // 2) delete the square from the newSquares configuration from which the draggable came from
+        delete newSquares[whiteMove.src];
+        // 3) set the new config
+        setSquares(newSquares);
 
-        // find the rank-file from which the draggable was moved
-        const wasFileRank = Object.keys(newSquares).find((square) => {
-            return newSquares[square][0] === activeDraggable;
-        });
-
-        if (over && wasFileRank && (over.id !== wasFileRank)) {
-            /*  Determine the gameClient move notation from its list of available, legal moves
-                by searching out the 'src' Square that matches the location of the draggable source
-            */
-            // 1) Consider it's source coordinates: wasFileRank (file and rank)
-            //    and it's pieceType (1st char of over.id)
-            const [sourceFile, sourceRank] = wasFileRank.split('');
-            const [destFile, destRank] = over.id.split('');
-            let pieceType: string = activeDraggable.charAt(0) !== 'p' ? `${activeDraggable.charAt(0)}` : 'pawn';
-            switch (pieceType) {
-                case 'pawn': break;
-                case 'n': pieceType = 'knight'; break;
-                case 'b': pieceType = 'bishop'; break;
-                case 'r': pieceType = 'rook'; break;
-                case 'q': pieceType = 'queen'; break;
-                case 'k': pieceType = 'king'; break;
-            }
-            ;
-            // 2) Make a copy of the notated moves status
-            const nextMoves = gameClient.getStatus().notatedMoves;
-
-            // search through it for a match of the src in terms of rank, file, and pieceType
-            const notation = Object.keys(nextMoves).find((move: any) => {
-                return (nextMoves[move].src.rank === Number(sourceRank) &&
-                        nextMoves[move].src.file === sourceFile &&
-                        nextMoves[move].src.piece.type.toLowerCase() === pieceType &&
-                        nextMoves[move].dest.rank === Number(destRank) &&
-                        nextMoves[move].dest.file === destFile)
-            });
-            if (notation) {
-                const r = gameClient.move(notation);
-                if (r.move.capturedPiece) {
-                    const draggableId = newSquares[over.id][0];
-                    const draggable = draggables[draggableId]; 
-                    capturedPieces[draggableId] = draggable;
-                }
-                
-            } else {
-                // whatever the move requested, it is not legal
-                throw Error('Invalid notation')
-            }
-            // Create a new setup configuration
-            // 1) assign the active draggable identifier and its corresponding draggable object to the over.id
-            newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
-            // 2) delete the square from the newSquares configuration from which the draggable came from
-            delete newSquares[wasFileRank];
-            // 3) set the new config
-            setSquares(newSquares);
-        }
       } catch(e) {
         console.log(e);
       }
