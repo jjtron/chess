@@ -4,8 +4,8 @@ import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd
 import {Droppable} from './Droppable';
 import {draggables, setup, capturedPieces} from '../lib/pieces';
 import clsx from 'clsx';
-import chess, { Square } from 'chess';
-import {getBlackMove, getWhiteMove} from '../lib/actions';
+import chess from 'chess';
+import {getBlackMove, getWhiteMove, getPrisonerExchange} from '../lib/actions';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -26,10 +26,9 @@ export default function Board() {
             return;
         }
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
-            ( async () => {
               try {
                 // get destination and source squares
-                const blackMove: { dest: string; src: string } | undefined = await getBlackMove(squares, gameClient);
+                const blackMove: { dest: string; src: string } | undefined = getBlackMove(squares, gameClient);
                 if (blackMove === undefined) { throw Error(''); }
 
                 // create new setup configuration
@@ -41,6 +40,14 @@ export default function Board() {
                 // highlight the square where black is going to move to
                 setBlackMoveHighlight(blackMove.dest);
                 
+                // if is this a pawn promtion . . .
+                if (blackMove.dest.charAt(1) === '1' && nextMoveDraggable[0].charAt(0) === 'p') {
+                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b');
+                    if (newDraggable) {
+                        // reassign the exchanged piece into the square
+                        newSquares[blackMove.dest] = [newDraggable.props.id, newDraggable];
+                    }
+                }
                 // set new squares configuration
                 setSquares(newSquares);
 
@@ -50,7 +57,6 @@ export default function Board() {
               } catch(e) {
                     console.log(e);
               }
-            })();
         }
     });
 
@@ -107,6 +113,16 @@ export default function Board() {
         newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
         // 2) delete the square from the newSquares configuration from which the draggable came from
         delete newSquares[whiteMove.src];
+
+        // if is this a pawn promtion . . .
+        if (whiteMove.dest.charAt(1) === '8' && activeDraggable.charAt(0) === 'p') {
+            const newDraggable: JSX.Element | undefined = getPrisonerExchange('w');
+            if (newDraggable) {
+                // reassign the exchanged piece into the square
+                newSquares[over.id] = [newDraggable.props.id, newDraggable];
+            }
+        }
+
         // 3) set the new config
         setSquares(newSquares);
 

@@ -1,7 +1,7 @@
 import {draggables, capturedPieces} from './pieces';
 import {Square} from 'chess';
 
-export async function getBlackMove(squares: any, gameClient: any) {
+export function getBlackMove(squares: any, gameClient: any): { dest: string; src: string } | undefined {
   try {
     // pick a next move at random
     const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
@@ -25,8 +25,7 @@ export async function getBlackMove(squares: any, gameClient: any) {
     const r = gameClient.move(nextMove);
     if (r.move.capturedPiece) {
         const draggableId = squares[`${destFile}${destRank}`][0];
-        const draggable = draggables[draggableId]; 
-        capturedPieces[draggableId] = draggable;
+        capturedPieces.push(draggableId);
     }
     return { dest: `${destFile}${destRank}`, src: `${sourceFile}${sourceRank}`};
 
@@ -35,7 +34,7 @@ export async function getBlackMove(squares: any, gameClient: any) {
   }
 }
 
-export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any, overId: string) {
+export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any, overId: string): { dest: string; src: string } | undefined {
   try {
     // find the rank-file from which the draggable was moved
     const wasFileRank = Object.keys(squares).find((square) => {
@@ -75,8 +74,7 @@ export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any
             const r = gameClient.move(notation);
             if (r.move.capturedPiece) {
                 const draggableId = squares[overId][0];
-                const draggable = draggables[draggableId]; 
-                capturedPieces[draggableId] = draggable;
+                capturedPieces.push(draggableId);
             }
             
         } else {
@@ -89,4 +87,33 @@ export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any
   } catch(e) {
         console.log(e);
   }
+}
+
+export function getPrisonerExchange(color: string): JSX.Element | undefined {
+    try {
+
+        // filter out a list of the pieces by color
+        const prisonerList = capturedPieces.filter((piece: string) => piece.charAt(1) === color);
+
+        // find the type of prisoner available for exchnage in one exists
+        const prisonerTypeExchange: string | undefined = ['q', 'r', 'n', 'b'].find((prisonerSought: string) => {
+            return prisonerList.find((prisonerChoice: string) => {
+                return prisonerChoice.charAt(0) === prisonerSought;
+            })
+        });
+        if (prisonerTypeExchange === undefined) {
+            return undefined;
+        }
+
+        // get id of the prisoner to be exchanged
+        const prisonerId: string | undefined = prisonerList.find((prisoner: string) => prisoner.charAt(0) === prisonerTypeExchange);
+        if (prisonerId === undefined) {
+            return undefined;
+        }
+
+        return draggables[prisonerId];
+
+    } catch(e) {
+        console.log(e);
+    }
 }
