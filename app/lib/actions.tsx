@@ -1,7 +1,7 @@
 import {draggables, capturedPieces} from './pieces';
-import {Square} from 'chess';
+import {Square, AlgebraicGameClient} from 'chess';
 
-export function getBlackMove(squares: any, gameClient: any): { dest: string; src: string } | undefined {
+export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, gameClient: AlgebraicGameClient): { dest: string; src: string } | undefined {
   try {
     // pick a next move at random
     const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
@@ -34,7 +34,12 @@ export function getBlackMove(squares: any, gameClient: any): { dest: string; src
   }
 }
 
-export function getWhiteMove(squares: any, activeDraggable: any, gameClient: any, overId: string): { dest: string; src: string } | undefined {
+export function getWhiteMove(
+    squares: {[key: string]: [string, JSX.Element]},
+    activeDraggable: string,
+    gameClient: AlgebraicGameClient,
+    overId: string
+): { dest: string; src: string } | undefined {
   try {
     // find the rank-file from which the draggable was moved
     const wasFileRank = Object.keys(squares).find((square) => {

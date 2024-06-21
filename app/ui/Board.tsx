@@ -58,7 +58,7 @@ export default function Board() {
                     console.log(e);
               }
         }
-    });
+    }), [squares, blackMoveHighlight];
 
     return (
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
