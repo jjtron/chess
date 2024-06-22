@@ -1,13 +1,13 @@
-import {PieceMove} from './interfaces';
-import {draggables, capturedPieces} from './pieces';
-import {Square, AlgebraicGameClient} from 'chess';
+import {PieceMove, BoardState, NotatedMoves} from './interfaces';
+import {draggables} from './pieces';
+import {AlgebraicGameClient} from 'chess';
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 
-export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, gameClient: AlgebraicGameClient): PieceMove | undefined {
+export function getBlackMove(squares: BoardState, gameClient: AlgebraicGameClient): PieceMove | undefined {
   try {
     // pick a next move at random
-    const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
+    const notatedMoves : NotatedMoves = gameClient.getStatus().notatedMoves;
     const movesArray = Object.keys(notatedMoves);
     const max: number = movesArray.length;
     const min: number = 0;
@@ -34,7 +34,7 @@ export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, ga
 }
 
 export function getWhiteMove(
-    squares: {[key: string]: [string, JSX.Element]},
+    squares: BoardState,
     activeDraggable: string,
     gameClient: AlgebraicGameClient,
     overId: string

@@ -1,5 +1,6 @@
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
+import {BoardState} from './interfaces';
 
 export var draggables: {[key: string]: JSX.Element } = {
     'pw1': <Draggable id='pw1'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
@@ -38,7 +39,7 @@ export var draggables: {[key: string]: JSX.Element } = {
     'kb': <Draggable id='kb'><Image priority src='/king-b.svg' width="60" height="60" alt="piece"/></Draggable>,
     'qb1': <Draggable id='qb1'><Image priority src='/queen-b.svg' width="60" height="60" alt="piece"/></Draggable>,
 }
-export const setup: {[key: string]: [string, JSX.Element]} = {
+export const setup: BoardState = {
     'a2': ['pw1', draggables.pw1],
     'b2': ['pw2', draggables.pw2],
     'c2': ['pw3', draggables.pw3],
