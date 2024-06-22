@@ -93,6 +93,8 @@ export function getPrisonerExchange(color: string, pieceType: string): JSX.Eleme
         // set the string value for the Image src
         const imgStrings: any = {
             q: 'queen',
+            g: 'queen', // not sure, but I think the author of node-chess means to use q, not g
+                        // so, I put this in here to cover his presumed mistake
             n: 'knight',
             b: 'bishop',
             r: 'rook'
