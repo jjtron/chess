@@ -75,4 +75,6 @@ export const setup: BoardState = {
     'h8': ['rb2', draggables.rb2]
 };
 
+// capturedPieces is useless at this point, but left in the code 
+// in case an idea arises which might make it useful
 export var capturedPieces: string[] = [];

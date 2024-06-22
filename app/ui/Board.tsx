@@ -38,10 +38,12 @@ export default function Board() {
                 const r = gameClient.move(blackMove.notation);
 
                 // see if there was a capture
+                let capturedDraggableId: string | null = null;
                 if (r.move.capturedPiece) {
+                    // get the id of the captured draggable
+                    capturedDraggableId = squares[blackMove.dest][0];
                     // Update the list of captured pieces
-                    const draggableId = squares[blackMove.dest][0];
-                    capturedPieces.push(draggableId);
+                    capturedPieces.push(capturedDraggableId);
                 }
 
                 // Create a new setup configuration
@@ -67,6 +69,11 @@ export default function Board() {
                 
                 // set new squares configuration
                 setSquares(newSquares);
+
+                if (capturedDraggableId) {
+                    // delete the captured draggable from the draggables 
+                    delete draggables[capturedDraggableId];
+                }
 
                 // un-highlight the square where black is going to move to
                 setTimeout(() => setBlackMoveHighlight(``), 1500);
@@ -128,10 +135,12 @@ export default function Board() {
         const r = gameClient.move(whiteMove.notation);
 
         // see if there was a capture
+        let capturedDraggableId: string | null = null;
         if (r.move.capturedPiece) {
+            // get the id of the captured draggable
+            capturedDraggableId = squares[over.id][0];
             // Update the list of captured pieces
-            const draggableId = squares[over.id][0];
-            capturedPieces.push(draggableId);
+            capturedPieces.push(capturedDraggableId);
         }
 
         // Create a new setup configuration
@@ -154,6 +163,11 @@ export default function Board() {
 
         // set the new config
         setSquares(newSquares);
+
+        if (capturedDraggableId) {
+            // delete the captured draggable from the draggables 
+            delete draggables[capturedDraggableId];
+        }
 
       } catch(e) {
         console.log(e);
