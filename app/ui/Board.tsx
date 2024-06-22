@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import chess from 'chess';
 import {getBlackMove, getWhiteMove, getPrisonerExchange} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
+import { FaLink } from "react-icons/fa";
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -127,7 +128,10 @@ export default function Board() {
                         </div>
                     )
                 })}
-                <a href="https://greenchess.net/index.php">Chess piece images by Green Chess</a>
+                <a href="https://greenchess.net/index.php" className="flex flex-row mt-2">
+                    <p className="pr-2">Chess piece images by Green Chess</p>
+                    <FaLink className="mt-1"/>
+                </a>
             </div>
         </DndContext>
     );
