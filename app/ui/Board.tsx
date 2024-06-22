@@ -6,10 +6,13 @@ import {draggables, setup, capturedPieces} from '../lib/pieces';
 import clsx from 'clsx';
 import chess from 'chess';
 import {getBlackMove, getWhiteMove, getPrisonerExchange} from '../lib/actions';
+import {PieceMove} from '../lib/interfaces';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
 gameClient.on('checkmate', () => { checkMate = true; });
+export var promote: boolean = false;
+gameClient.on('promote', () => { promote = true; });
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -42,7 +45,7 @@ export default function Board() {
                 
                 // if is this a pawn promtion . . .
                 if (blackMove.dest.charAt(1) === '1' && nextMoveDraggable[0].charAt(0) === 'p') {
-                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b');
+                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b', '');
                     if (newDraggable) {
                         // reassign the exchanged piece into the square
                         newSquares[blackMove.dest] = [newDraggable.props.id, newDraggable];
@@ -104,26 +107,38 @@ export default function Board() {
     async function handleDragEnd({over} : {over: any}) {
       try {
 
-        const whiteMove: { dest: string; src: string } | undefined = getWhiteMove(squares, activeDraggable, gameClient, over.id);
+        const whiteMove: PieceMove | undefined = getWhiteMove(squares, activeDraggable, gameClient, over.id);
         if (whiteMove === undefined) { throw Error('Failure to register white move'); }
+
+        // update the GameClient
+        const r = gameClient.move(whiteMove.notation);
+
+        // see if there was a capture
+        if (r.move.capturedPiece) {
+            // Update the list of captured pieces
+            const draggableId = squares[over.id][0];
+            capturedPieces.push(draggableId);
+        }
 
         // Create a new setup configuration
         const newSquares = {...squares};
-        // 1) assign the active draggable identifier and its corresponding draggable object to the over.id
-        newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
-        // 2) delete the square from the newSquares configuration from which the draggable came from
-        delete newSquares[whiteMove.src];
 
-        // if is this a pawn promtion . . .
-        if (whiteMove.dest.charAt(1) === '8' && activeDraggable.charAt(0) === 'p') {
-            const newDraggable: JSX.Element | undefined = getPrisonerExchange('w');
-            if (newDraggable) {
-                // reassign the exchanged piece into the square
-                newSquares[over.id] = [newDraggable.props.id, newDraggable];
-            }
+        if (promote) {
+            // if this is a promotion . . .
+            promote = false;
+            const pieceType = whiteMove.notation.charAt(2).toLowerCase();
+            const newDraggable: JSX.Element | undefined = getPrisonerExchange('w', pieceType);
+            if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
+            newSquares[over.id] = [newDraggable.props.id, newDraggable];
+        } else {
+            // assign the active draggable identifier and its corresponding draggable object to the over.id
+            newSquares[over.id] = [activeDraggable, draggables[activeDraggable]];
         }
 
-        // 3) set the new config
+        // delete the square from the newSquares configuration from which the draggable came from
+        delete newSquares[whiteMove.src];
+
+        // set the new config
         setSquares(newSquares);
 
       } catch(e) {

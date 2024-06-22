@@ -1,7 +1,7 @@
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 
-export const draggables: {[key: string]: JSX.Element } = {
+export var draggables: {[key: string]: JSX.Element } = {
     'pw1': <Draggable id='pw1'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'pw2': <Draggable id='pw2'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'pw3': <Draggable id='pw3'><Image priority src='/pawn-w.svg' width="60" height="60" alt="piece"/></Draggable>,
@@ -18,7 +18,7 @@ export const draggables: {[key: string]: JSX.Element } = {
     'bw1': <Draggable id='bw1'><Image priority src='/bishop-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'bw2': <Draggable id='bw2'><Image priority src='/bishop-w.svg' width="60" height="60" alt="piece"/></Draggable>,
     'kw': <Draggable id='kw'><Image priority src='/king-w.svg' width="60" height="60" alt="piece"/></Draggable>,
-    'qw': <Draggable id='qw'><Image priority src='/queen-w.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'qw1': <Draggable id='qw1'><Image priority src='/queen-w.svg' width="60" height="60" alt="piece"/></Draggable>,
 
     'pb1': <Draggable id='pb1'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
     'pb2': <Draggable id='pb2'><Image priority src='/pawn-b.svg' width="60" height="60" alt="piece"/></Draggable>,
@@ -36,7 +36,7 @@ export const draggables: {[key: string]: JSX.Element } = {
     'bb1': <Draggable id='bb1'><Image priority src='/bishop-b.svg' width="60" height="60" alt="piece"/></Draggable>,
     'bb2': <Draggable id='bb2'><Image priority src='/bishop-b.svg' width="60" height="60" alt="piece"/></Draggable>,
     'kb': <Draggable id='kb'><Image priority src='/king-b.svg' width="60" height="60" alt="piece"/></Draggable>,
-    'qb': <Draggable id='qb'><Image priority src='/queen-b.svg' width="60" height="60" alt="piece"/></Draggable>,
+    'qb1': <Draggable id='qb1'><Image priority src='/queen-b.svg' width="60" height="60" alt="piece"/></Draggable>,
 }
 export const setup: {[key: string]: [string, JSX.Element]} = {
     'a2': ['pw1', draggables.pw1],
@@ -50,7 +50,7 @@ export const setup: {[key: string]: [string, JSX.Element]} = {
     'a1': ['rw1', draggables.rw1],
     'b1': ['nw1', draggables.nw1],
     'c1': ['bw1', draggables.bw1],
-    'd1': ['qw', draggables.qw],
+    'd1': ['qw1', draggables.qw1],
     'e1': ['kw', draggables.kw],
     'f1': ['bw2', draggables.bw2],
     'g1': ['nw2', draggables.nw2],
@@ -67,7 +67,7 @@ export const setup: {[key: string]: [string, JSX.Element]} = {
     'a8': ['rb1', draggables.rb1],
     'b8': ['nb1', draggables.nb1],
     'c8': ['bb1', draggables.bb1],
-    'd8': ['qb', draggables.qb],
+    'd8': ['qb1', draggables.qb1],
     'e8': ['kb', draggables.kb],
     'f8': ['bb2', draggables.bb2],
     'g8': ['nb2', draggables.nb2],

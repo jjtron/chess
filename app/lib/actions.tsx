@@ -1,5 +1,8 @@
+import {PieceMove} from './interfaces';
 import {draggables, capturedPieces} from './pieces';
 import {Square, AlgebraicGameClient} from 'chess';
+import {Draggable} from '../ui/Draggable';
+import Image from 'next/image';
 
 export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, gameClient: AlgebraicGameClient): { dest: string; src: string } | undefined {
   try {
@@ -39,7 +42,7 @@ export function getWhiteMove(
     activeDraggable: string,
     gameClient: AlgebraicGameClient,
     overId: string
-): { dest: string; src: string } | undefined {
+): PieceMove | undefined {
   try {
     // find the rank-file from which the draggable was moved
     const wasFileRank = Object.keys(squares).find((square) => {
@@ -75,48 +78,46 @@ export function getWhiteMove(
                     nextMoves[move].dest.rank === Number(destRank) &&
                     nextMoves[move].dest.file === destFile)
         });
-        if (notation) {
-            const r = gameClient.move(notation);
-            if (r.move.capturedPiece) {
-                const draggableId = squares[overId][0];
-                capturedPieces.push(draggableId);
-            }
-            
-        } else {
-            // whatever the move requested, it is not legal
-            throw Error('Invalid notation')
-        }
 
-        return { dest: `${destFile}${destRank}`, src: `${sourceFile}${sourceRank}`};
+        if (!notation) { return undefined; }
+
+        return {
+            dest: `${destFile}${destRank}`,
+            src: `${sourceFile}${sourceRank}`,
+            notation: notation
+        };
     } 
   } catch(e) {
         console.log(e);
   }
 }
 
-export function getPrisonerExchange(color: string): JSX.Element | undefined {
+export function getPrisonerExchange(color: string, pieceType: string): JSX.Element | undefined {
     try {
+        // set the string value for the Image src
+        const imgStrings: any = {
+            q: 'queen',
+            n: 'knight',
+            b: 'bishop',
+            r: 'rook'
+        }
+        const imgString: string = `/${imgStrings[pieceType]}-${color}.svg`;
 
-        // filter out a list of the pieces by color
-        const prisonerList = capturedPieces.filter((piece: string) => piece.charAt(1) === color);
-
-        // find the type of prisoner available for exchnage in one exists
-        const prisonerTypeExchange: string | undefined = ['q', 'r', 'n', 'b'].find((prisonerSought: string) => {
-            return prisonerList.find((prisonerChoice: string) => {
-                return prisonerChoice.charAt(0) === prisonerSought;
-            })
+        // filter out the pieces that match the specified kind of piece fr the exchange
+        const pieces: string[] = Object.keys(draggables).filter((id) => id.charAt(0) === pieceType && id.charAt(1) === color);
+        // determine the next highest number of the third character ...
+        let idNumber: number = 0;
+        pieces.forEach((piece: string) => {
+            if (Number(piece.charAt(2)) > idNumber) {
+                idNumber = Number(piece.charAt(2));
+            }
         });
-        if (prisonerTypeExchange === undefined) {
-            return undefined;
-        }
-
-        // get id of the prisoner to be exchanged
-        const prisonerId: string | undefined = prisonerList.find((prisoner: string) => prisoner.charAt(0) === prisonerTypeExchange);
-        if (prisonerId === undefined) {
-            return undefined;
-        }
-
-        return draggables[prisonerId];
+        idNumber++; // ... to avoid having dulicate ids
+        const idString = `${pieceType}${color}${idNumber.toString()}`;
+        
+        // add the new draggable to the draggable list
+        draggables[idString] = <Draggable id={idString}><Image priority src={imgString} width="60" height="60" alt="piece"/></Draggable>;
+        return draggables[idString];
 
     } catch(e) {
         console.log(e);
