@@ -4,7 +4,7 @@ import {Square, AlgebraicGameClient} from 'chess';
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 
-export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, gameClient: AlgebraicGameClient): { dest: string; src: string } | undefined {
+export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, gameClient: AlgebraicGameClient): PieceMove | undefined {
   try {
     // pick a next move at random
     const notatedMoves : {[key: string]: { dest: Square; src: Square }} = gameClient.getStatus().notatedMoves;
@@ -22,15 +22,11 @@ export function getBlackMove(squares: {[key: string]: [string, JSX.Element]}, ga
 
     // `${sourceFile}${sourceRank}` is the location of the source
     // `${destFile}${destRank}` is the location of the destination
-    // nextMoveDraggable[0] is the identity of the draggable component JSX.Element
-    // nextMoveDraggable[1] is the actual draggable component JSX.Element
-    // nextMove is the notation to be passed into the gameClient.move(<whatever>);
-    const r = gameClient.move(nextMove);
-    if (r.move.capturedPiece) {
-        const draggableId = squares[`${destFile}${destRank}`][0];
-        capturedPieces.push(draggableId);
-    }
-    return { dest: `${destFile}${destRank}`, src: `${sourceFile}${sourceRank}`};
+    return {
+        dest: `${destFile}${destRank}`,
+        src: `${sourceFile}${sourceRank}`,
+        notation: nextMove
+    };
 
   } catch(e) {
         console.log(e);

@@ -31,26 +31,40 @@ export default function Board() {
         if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
               try {
                 // get destination and source squares
-                const blackMove: { dest: string; src: string } | undefined = getBlackMove(squares, gameClient);
+                const blackMove: PieceMove | undefined = getBlackMove(squares, gameClient);
                 if (blackMove === undefined) { throw Error(''); }
 
-                // create new setup configuration
-                const nextMoveDraggable: [ string, JSX.Element ] = squares[blackMove.src];
+                // update the GameClient
+                const r = gameClient.move(blackMove.notation);
+
+                // see if there was a capture
+                if (r.move.capturedPiece) {
+                    // Update the list of captured pieces
+                    const draggableId = squares[blackMove.dest][0];
+                    capturedPieces.push(draggableId);
+                }
+
+                // Create a new setup configuration
                 const newSquares = {...squares};
-                newSquares[blackMove.dest] = [nextMoveDraggable[0], nextMoveDraggable[1]];
+
+                if (promote) {
+                    // if this is a promotion . . .
+                    promote = false;
+                    const pieceType = blackMove.notation.charAt(2).toLowerCase();
+                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b', pieceType);
+                    if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
+                    newSquares[blackMove.dest] = [newDraggable.props.id, newDraggable];
+                } else {
+                    // assign the active draggable identifier and its corresponding draggable object to the over.id
+                    const nextMoveDraggable: [ string, JSX.Element ] = squares[blackMove.src];
+                    newSquares[blackMove.dest] = [nextMoveDraggable[0], nextMoveDraggable[1]];
+                }
+                // delete the square from the newSquares configuration from which the draggable came from
                 delete newSquares[blackMove.src];
 
                 // highlight the square where black is going to move to
                 setBlackMoveHighlight(blackMove.dest);
                 
-                // if is this a pawn promtion . . .
-                if (blackMove.dest.charAt(1) === '1' && nextMoveDraggable[0].charAt(0) === 'p') {
-                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b', '');
-                    if (newDraggable) {
-                        // reassign the exchanged piece into the square
-                        newSquares[blackMove.dest] = [newDraggable.props.id, newDraggable];
-                    }
-                }
                 // set new squares configuration
                 setSquares(newSquares);
 
