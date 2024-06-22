@@ -17,6 +17,7 @@ gameClient.on('promote', () => { promote = true; });
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
+    const [opponentSelf, setOpponentSelf] = useState(false);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
@@ -28,7 +29,7 @@ export default function Board() {
             alert('Checkmate');
             return;
         }
-        if (nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
+        if (!opponentSelf && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
               try {
                 // get destination and source squares
                 const blackMove: PieceMove | undefined = getBlackMove(squares, gameClient);
@@ -36,6 +37,7 @@ export default function Board() {
 
                 // update the GameClient
                 const r = gameClient.move(blackMove.notation);
+                const color = r.move.postSquare.piece.side.name.charAt(0);
 
                 // see if there was a capture
                 let capturedDraggableId: string | null = null;
@@ -53,7 +55,7 @@ export default function Board() {
                     // if this is a promotion . . .
                     promote = false;
                     const pieceType = blackMove.notation.charAt(2).toLowerCase();
-                    const newDraggable: JSX.Element | undefined = getPrisonerExchange('b', pieceType);
+                    const newDraggable: JSX.Element | undefined = getPrisonerExchange(color, pieceType);
                     if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
                     newSquares[blackMove.dest] = [newDraggable.props.id, newDraggable];
                 } else {
@@ -91,6 +93,11 @@ export default function Board() {
                     sensors={sensors}
         >
             <div className='flex flex-col items-center'>
+                <div className="text-2xl">Chess</div>
+                <div className="flex flex-row border-[1px] border-white rounded-md px-2 mb-2">
+                    <p className="pr-2">Play against myself</p>
+                    <input type="checkbox" onClick={() => {setOpponentSelf(!opponentSelf)}}/>
+                </div>
                 {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
                         <div key={rank} className='flex flex-row'>
@@ -133,6 +140,7 @@ export default function Board() {
 
         // update the GameClient
         const r = gameClient.move(whiteMove.notation);
+        const color = r.move.postSquare.piece.side.name.charAt(0);
 
         // see if there was a capture
         let capturedDraggableId: string | null = null;
@@ -150,7 +158,7 @@ export default function Board() {
             // if this is a promotion . . .
             promote = false;
             const pieceType = whiteMove.notation.charAt(2).toLowerCase();
-            const newDraggable: JSX.Element | undefined = getPrisonerExchange('w', pieceType);
+            const newDraggable: JSX.Element | undefined = getPrisonerExchange(color, pieceType);
             if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
             newSquares[over.id] = [newDraggable.props.id, newDraggable];
         } else {
