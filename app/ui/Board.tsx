@@ -8,6 +8,7 @@ import chess from 'chess';
 import {getBlackMove, getWhiteMove, getPrisonerExchange} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
+import { stockfish } from '../lib/stockfish';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
