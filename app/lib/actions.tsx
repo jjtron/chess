@@ -10,27 +10,29 @@ export function getBlackMove(
     blackAiMove: string
 ): PieceMove | undefined {
   try {
-    // pick a next move at random
+    // pick the next move by matching dest and source of the AI move
+    // with the one found in the notatedMoves array
     const notatedMoves : NotatedMoves = gameClient.getStatus().notatedMoves;
-    const movesArray = Object.keys(notatedMoves);
-    const max: number = movesArray.length;
-    const min: number = 0;
-    const nextMoveIndex = Math.floor(Math.random() * (max - min) + min);
-    const nextMove = movesArray[nextMoveIndex];
-
-    // find the source (file, rank, and pieceType of the next move)
-    const sourceFile = notatedMoves[nextMove].src.file;
-    const sourceRank = notatedMoves[nextMove].src.rank;
-    const destFile = notatedMoves[nextMove].dest.file;
-    const destRank = notatedMoves[nextMove].dest.rank;
+    const theNextAiMove = Object.keys(notatedMoves).find((move) => {
+        return (
+            notatedMoves[move].src.file === blackAiMove.charAt(0) &&
+            notatedMoves[move].src.rank === Number(blackAiMove.charAt(1)) &&
+            notatedMoves[move].dest.file === blackAiMove.charAt(2) &&
+            notatedMoves[move].dest.rank === Number(blackAiMove.charAt(3))
+        )
+    });
 
     // `${sourceFile}${sourceRank}` is the location of the source
     // `${destFile}${destRank}` is the location of the destination
-    return {
-        dest: `${destFile}${destRank}`,
-        src: `${sourceFile}${sourceRank}`,
-        notation: nextMove
-    };
+    if (theNextAiMove) {
+        return {
+            dest: `${blackAiMove.charAt(2)}${blackAiMove.charAt(3)}`,
+            src: `${blackAiMove.charAt(0)}${blackAiMove.charAt(1)}`,
+            notation: theNextAiMove
+        };
+    } else {
+        throw Error('Error getting next move for black');
+    }
 
   } catch(e) {
         console.log(e);
