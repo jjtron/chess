@@ -5,10 +5,9 @@ import {Droppable} from './Droppable';
 import {draggables, setup, capturedPieces} from '../lib/pieces';
 import clsx from 'clsx';
 import chess from 'chess';
-import {getBlackMove, getWhiteMove, getPrisonerExchange} from '../lib/actions';
+import {getBlackMove, getWhiteMove, getPrisonerExchange, getBlackAiMove} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
-import { stockfish } from '../lib/stockfish';
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -78,6 +77,7 @@ export default function Board() {
                     // delete the captured draggable from the draggables 
                     delete draggables[capturedDraggableId];
                 }
+                getBlackAiMove(gameClient);
 
                 // un-highlight the square where black is going to move to
                 setTimeout(() => setBlackMoveHighlight(``), 1500);
