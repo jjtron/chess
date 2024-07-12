@@ -31,9 +31,11 @@ export default function Board() {
             return;
         }
         if (!opponentSelf && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
-              try {
-                // get destination and source squares
-                const blackMove: PieceMove | undefined = getBlackMove(squares, gameClient);
+
+            getBlackAiMove(gameClient).then((blackAiMove) => {
+                // get destination and source squares using the blackAiMove to pull
+                // from the gameClient set of next-moves-possible
+                const blackMove: PieceMove | undefined = getBlackMove(gameClient, blackAiMove);
                 if (blackMove === undefined) { throw Error(''); }
 
                 // update the GameClient
@@ -77,14 +79,13 @@ export default function Board() {
                     // delete the captured draggable from the draggables 
                     delete draggables[capturedDraggableId];
                 }
-                getBlackAiMove(gameClient);
 
                 // un-highlight the square where black is going to move to
                 setTimeout(() => setBlackMoveHighlight(``), 1500);
 
-              } catch(e) {
-                    console.log(e);
-              }
+            }).catch((e) => {
+                console.log(e);
+            });
         }
     }), [squares, blackMoveHighlight];
 

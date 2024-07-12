@@ -5,7 +5,10 @@ import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
 
-export function getBlackMove(squares: BoardState, gameClient: AlgebraicGameClient): PieceMove | undefined {
+export function getBlackMove(
+    gameClient: AlgebraicGameClient,
+    blackAiMove: string
+): PieceMove | undefined {
   try {
     // pick a next move at random
     const notatedMoves : NotatedMoves = gameClient.getStatus().notatedMoves;
@@ -124,63 +127,72 @@ export function getPrisonerExchange(color: string, pieceType: string): JSX.Eleme
 }
 
 export function getBlackAiMove(gameClient: any) {
-    const boardState = gameClient.getStatus().board.squares;
-    function compare( a: any, b: any ) {
-        if ( a.rank > b.rank ){
-          return -1;
-        }
-        if ( a.rank < b.rank ){
-          return 1;
-        }
-        return 0;
-    }
-    let newBoardState: any[] = [];
-    for (let i = 8; i > 0; i--) {
-        newBoardState = newBoardState.concat(
-            boardState.filter((square: any) => {
-                return square.rank === i;
-            }).sort(compare)
-        );
-    }
-    let fen: string = '';
-    newBoardState.forEach((square: any, i: number) => {
-        if (square.piece === null) {
-            fen += 0;
-        } else {
-            const side = square.piece.side.name;
-            const type = (side === 'white') ? square.piece.type.toUpperCase() : square.piece.type ;
-            if (type.toLowerCase() === 'knight') {
-                fen += type.charAt(1);
-            } else {
-                fen += type.charAt(0);
-            }
-        }
-        if ((i + 1) % 8 === 0) {
-            fen += '/';
-        }
-    });
+    return new Promise<string>((resolve, reject) => {
 
-    let fen1: string[] = [];
-    let emptySquareNumber = 0;
-    fen.split('').forEach((char: string) => {
-        if (char === '0') {
-            emptySquareNumber++;
-        } else {
-            if (emptySquareNumber > 0) {
-                fen1.push(emptySquareNumber + '');
+        // this used to sort arrays of board state
+        function compare( a: any, b: any ) {
+            if ( a.rank > b.rank ){ return -1; }
+            if ( a.rank < b.rank ){ return 1; }
+            return 0;
+        }
+
+        try {
+            const boardState = gameClient.getStatus().board.squares;
+            // resort the board state to match the FEN specification 
+            let newBoardState: any[] = [];
+            for (let i = 8; i > 0; i--) {
+                newBoardState = newBoardState.concat(
+                    boardState.filter((square: any) => {
+                        return square.rank === i;
+                    }).sort(compare)
+                );
             }
-            emptySquareNumber = 0;
-            fen1.push(char);
+            // build the FEN string
+            let fen: string = '';
+            newBoardState.forEach((square: any, i: number) => {
+                if (square.piece === null) {
+                    fen += 0;
+                } else {
+                    const side = square.piece.side.name;
+                    const type = (side === 'white') ? square.piece.type.toUpperCase() : square.piece.type ;
+                    if (type.toLowerCase() === 'knight') {
+                        fen += type.charAt(1);
+                    } else {
+                        fen += type.charAt(0);
+                    }
+                }
+                if ((i + 1) % 8 === 0) {
+                    fen += '/';
+                }
+            });
+
+            let fenSplit: string[] = [];
+            let emptySquareNumber = 0;
+            fen.split('').forEach((char: string) => {
+                if (char === '0') {
+                    emptySquareNumber++;
+                } else {
+                    if (emptySquareNumber > 0) {
+                        fenSplit.push(emptySquareNumber + '');
+                    }
+                    emptySquareNumber = 0;
+                    fenSplit.push(char);
+                }
+            });
+            fen = fenSplit.join('') + ' b';
+            const DEPTH = 4;
+            // get the artificailly intelligent best next move
+            if (typeof stockfish !== 'undefined') {
+                stockfish.postMessage(`position fen ${fen}`);
+                stockfish.postMessage(`go depth ${DEPTH}`);
+                stockfish.onmessage = (e: any) => {
+                    if (e.data.search('bestmove') === 0) {
+                        resolve(e.data.substring(9, 13));
+                    }
+                };
+            }
+        } catch (e) {
+            reject('Error getting AI next move');
         }
     });
-    fen = fen1.join('') + ' w';
-    const DEPTH = 4;
-    
-    if (typeof stockfish !== 'undefined') {
-        stockfish.postMessage(`position fen ${fen}`);
-        stockfish.postMessage(`go depth ${DEPTH}`);
-        stockfish.onmessage = (e: any) => {
-            console.log(e.data); // in the console output you will see `bestmove e2e4` message
-        };
-    }
 }
