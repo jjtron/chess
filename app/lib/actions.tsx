@@ -5,6 +5,40 @@ import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
 
+export function getCastlingStatus(gameClient: AlgebraicGameClient) {
+    /*
+        1 Neither the king nor the rook has previously moved.
+        2 There are no pieces between the king and the rook.
+        3 The king is not currently in check.
+        4 The king does not pass through or finish on a square that is attacked by an enemy piece.
+    */
+    try {
+        // test condition 2
+        // [1,2,3], [5,6], [57,58,59], [61,62]
+        const possibilities: any = {
+            K: [61,62],
+            Q: [57,58,59],
+            k: [5,6],
+            q: [1,2,3]
+        }
+        const boardState = gameClient.getStatus().board.squares;
+        const fenSortedBoardState = getFenSortedBoardState(boardState);
+        const possibilityArray: boolean[][] = Object.keys(possibilities).map((key: string) => {
+            return possibilities[key].map((boardArrayElement: number) => {
+                return fenSortedBoardState[boardArrayElement].piece === null;
+            });
+        });
+        const p = possibilityArray.map((squareStatus) => {
+            return squareStatus.every((stat) => stat === true );
+        });
+        const FENstring = Object.keys(possibilities).filter((key: string, index: number) => {
+            return p[index] === true;
+        });
+        const x = 0;
+    } catch (e) {
+
+    }
+}
 export function getBlackMove(
     gameClient: AlgebraicGameClient,
     blackAiMove: string
@@ -130,28 +164,12 @@ export function getPrisonerExchange(color: string, pieceType: string): JSX.Eleme
 
 export function getBlackAiMove(gameClient: any) {
     return new Promise<string>((resolve, reject) => {
-
-        // this used to sort arrays of board state
-        function compare( a: any, b: any ) {
-            if ( a.rank > b.rank ){ return -1; }
-            if ( a.rank < b.rank ){ return 1; }
-            return 0;
-        }
-
         try {
             const boardState = gameClient.getStatus().board.squares;
-            // resort the board state to match the FEN specification 
-            let newBoardState: any[] = [];
-            for (let i = 8; i > 0; i--) {
-                newBoardState = newBoardState.concat(
-                    boardState.filter((square: any) => {
-                        return square.rank === i;
-                    }).sort(compare)
-                );
-            }
+            const fenSortedBoardState = getFenSortedBoardState(boardState);
             // build the FEN string
             let fen: string = '';
-            newBoardState.forEach((square: any, i: number) => {
+            fenSortedBoardState.forEach((square: any, i: number) => {
                 if (square.piece === null) {
                     fen += 0;
                 } else {
@@ -197,4 +215,23 @@ export function getBlackAiMove(gameClient: any) {
             reject('Error getting AI next move');
         }
     });
+}
+
+function compare( a: any, b: any ) {
+    if ( a.rank > b.rank ){ return -1; }
+    if ( a.rank < b.rank ){ return 1; }
+    return 0;
+}
+
+function getFenSortedBoardState(boardState: any): any {
+    // resort the board state to match the FEN specification 
+    let fenSortedBoardState: any[] = [];
+    for (let i = 8; i > 0; i--) {
+        fenSortedBoardState = fenSortedBoardState.concat(
+            boardState.filter((square: any) => {
+                return square.rank === i;
+            }).sort(compare)
+        );
+    }
+    return fenSortedBoardState;
 }
