@@ -23,18 +23,18 @@ export function getCastlingStatus(gameClient: AlgebraicGameClient) {
         }
         const boardState = gameClient.getStatus().board.squares;
         const fenSortedBoardState = getFenSortedBoardState(boardState);
-        const possibilityArray: boolean[][] = Object.keys(possibilities).map((key: string) => {
+        const possibilityStatus = Object.keys(possibilities).map((key: string) => {
             return possibilities[key].map((boardArrayElement: number) => {
                 return fenSortedBoardState[boardArrayElement].piece === null;
             });
+        }).map((squaresGroupStatus) => {
+            return squaresGroupStatus.every((empty: boolean) => empty === true );
         });
-        const p = possibilityArray.map((squareStatus) => {
-            return squareStatus.every((stat) => stat === true );
-        });
+
         const FENstring = Object.keys(possibilities).filter((key: string, index: number) => {
-            return p[index] === true;
+            return possibilityStatus[index] === true;
         });
-        const x = 0;
+        console.log('FENstring', FENstring);
     } catch (e) {
 
     }
