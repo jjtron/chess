@@ -73,7 +73,9 @@ export function getBlackMove(
   }
 }
 
-export function getWhiteMove(
+// This function works for both black and white when the checkbox
+// for playing against one's self is set
+export function getPieceMove(
     squares: BoardState,
     activeDraggable: string,
     gameClient: AlgebraicGameClient,

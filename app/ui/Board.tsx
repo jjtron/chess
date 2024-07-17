@@ -5,7 +5,8 @@ import {Droppable} from './Droppable';
 import {draggables, setup, capturedPieces} from '../lib/pieces';
 import clsx from 'clsx';
 import chess from 'chess';
-import {getBlackMove, getWhiteMove, getPrisonerExchange, getBlackAiMove} from '../lib/actions';
+import {getBlackMove, getPieceMove, getPrisonerExchange,
+        getBlackAiMove, getCastlingStatus} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
 
@@ -141,11 +142,11 @@ export default function Board() {
     async function handleDragEnd({over} : {over: any}) {
       try {
 
-        const whiteMove: PieceMove | undefined = getWhiteMove(squares, activeDraggable, gameClient, over.id);
-        if (whiteMove === undefined) { throw Error('Failure to register white move'); }
+        const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
+        if (pieceMove === undefined) { throw Error('Failure to register piece move'); }
 
         // update the GameClient
-        const r = gameClient.move(whiteMove.notation);
+        const r = gameClient.move(pieceMove.notation);
         const color = r.move.postSquare.piece.side.name.charAt(0);
 
         // see if there was a capture
@@ -163,7 +164,7 @@ export default function Board() {
         if (promote) {
             // if this is a promotion . . .
             promote = false;
-            const pieceType = whiteMove.notation.charAt(2).toLowerCase();
+            const pieceType = pieceMove.notation.charAt(2).toLowerCase();
             const newDraggable: JSX.Element | undefined = getPrisonerExchange(color, pieceType);
             if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
             newSquares[over.id] = [newDraggable.props.id, newDraggable];
@@ -173,7 +174,7 @@ export default function Board() {
         }
 
         // delete the square from the newSquares configuration from which the draggable came from
-        delete newSquares[whiteMove.src];
+        delete newSquares[pieceMove.src];
 
         // set the new config
         setSquares(newSquares);
