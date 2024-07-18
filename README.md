@@ -10,3 +10,6 @@ The following line (line 61) has to be hacked . . .
 
 or a typescript error will become evident, and will fail to compile
 
+THE SOURCE FOR THE /public/stockfish.js FILE:
+https://github.com/avinayak/chess/blob/master/public/stockfish.js
+
