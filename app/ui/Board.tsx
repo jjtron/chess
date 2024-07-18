@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
 import {Droppable} from './Droppable';
-import {draggables, setup, capturedPieces} from '../lib/pieces';
+import {draggables, setup, capturedPieces, kingRookMovedRecord} from '../lib/pieces';
 import clsx from 'clsx';
 import chess from 'chess';
 import {getBlackMove, getPieceMove, getPrisonerExchange,
@@ -83,6 +83,13 @@ export default function Board() {
 
                 // un-highlight the square where black is going to move to
                 setTimeout(() => setBlackMoveHighlight(``), 1500);
+
+                // set that a king or rook has moved if one has moved
+                if (kingRookMovedRecord.hasOwnProperty(blackMove.src)) {
+                    kingRookMovedRecord[blackMove.src][0] = true;
+                }
+
+                getCastlingStatus(gameClient, kingRookMovedRecord);
 
             }).catch((e) => {
                 console.log(e);
@@ -183,6 +190,13 @@ export default function Board() {
             // delete the captured draggable from the draggables 
             delete draggables[capturedDraggableId];
         }
+
+        // set that a king or rook has moved if one has moved
+        if (kingRookMovedRecord.hasOwnProperty(pieceMove.src)) {
+            kingRookMovedRecord[pieceMove.src][0] = true;
+        }
+
+        getCastlingStatus(gameClient, kingRookMovedRecord);
 
       } catch(e) {
         console.log(e);

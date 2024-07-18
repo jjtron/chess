@@ -5,7 +5,10 @@ import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
 
-export function getCastlingStatus(gameClient: AlgebraicGameClient) {
+export function getCastlingStatus(
+    gameClient: AlgebraicGameClient,
+    kingRookMovedRecord: any
+) {
     /*
         1 Neither the king nor the rook has previously moved.
         2 There are no pieces between the king and the rook.
@@ -14,7 +17,6 @@ export function getCastlingStatus(gameClient: AlgebraicGameClient) {
     */
     try {
         // test condition 2
-        // [1,2,3], [5,6], [57,58,59], [61,62]
         const possibilities: any = {
             K: [61,62],
             Q: [57,58,59],
@@ -30,13 +32,29 @@ export function getCastlingStatus(gameClient: AlgebraicGameClient) {
         }).map((squaresGroupStatus) => {
             return squaresGroupStatus.every((empty: boolean) => empty === true );
         });
-
-        const FENstring = Object.keys(possibilities).filter((key: string, index: number) => {
+        let FENarray = Object.keys(possibilities).filter((key: string, index: number) => {
             return possibilityStatus[index] === true;
         });
-        console.log('FENstring', FENstring);
-    } catch (e) {
 
+        // test condition 1
+        // create list of negated castling options by examining the kingRookMovedRecord variable
+        const negatedCastlingOptions: string[] = Object.keys(kingRookMovedRecord).filter((moveSquare) => {
+            return kingRookMovedRecord[moveSquare][0] === true;
+        }).map((moveSquare) => {
+            return kingRookMovedRecord[moveSquare][1];
+        }).join('').split('');
+        // remove the negated castling options from the FEN array
+        negatedCastlingOptions.forEach((movedsquare) => {
+            const end = FENarray.length - 1;
+            if (FENarray.indexOf(movedsquare) > -1) {
+                const start = FENarray.indexOf(movedsquare);
+                FENarray = FENarray.slice(start, end);
+            }
+        });
+        console.log(FENarray.join(''));
+        
+    } catch (e) {
+        return '';
     }
 }
 export function getBlackMove(

@@ -78,3 +78,15 @@ export const setup: BoardState = {
 // capturedPieces is useless at this point, but left in the code 
 // in case an idea arises which might make it useful
 export var capturedPieces: string[] = [];
+
+export var kingRookMovedRecord: any = {
+    // each property has an array
+    // 1st element is whether or not the piece on that square has moved
+    // 2nd element is which FEN castling character should be negated as a result of a move
+    a1: [false, 'Q'],
+    e1: [false, 'QK'],
+    h1: [false, 'K'],
+    a8: [false, 'q'],
+    e8: [false, 'qk'],
+    h8: [false, 'k'],
+}
