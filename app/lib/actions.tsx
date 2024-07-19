@@ -10,7 +10,7 @@ export function getCastlingStatus(
     gameClient: AlgebraicGameClient,
     kingRookMovedRecord: any,
     color: string
-) {
+) : string {
     /*
         1 Neither the king nor the rook has previously moved.
         2 There are no pieces between the king and the rook.
@@ -72,18 +72,24 @@ export function getCastlingStatus(
         };
         const nextMovesKeys = Object.keys(nextMoves);
         FENarray.forEach((castleOption) => {
-                const destFound = nextMovesKeys.find((move) => {
-                    return nextMoves[move].src.piece.type === 'king' &&
-                           nextMoves[move].dest.file === castleOptionVsKingsDest[castleOption].charAt(0) &&
-                           nextMoves[move].dest.rank === Number(castleOptionVsKingsDest[castleOption].charAt(1))
-                });
-                if (typeof destFound === 'undefined') {
-                    negatedCastlingOptions.push(castleOption);
-                }
+            const destFound = nextMovesKeys.find((move) => {
+                return nextMoves[move].src.piece.type === 'king' &&
+                    nextMoves[move].dest.file === castleOptionVsKingsDest[castleOption].charAt(0) &&
+                    nextMoves[move].dest.rank === Number(castleOptionVsKingsDest[castleOption].charAt(1))
+            });
+            if (typeof destFound === 'undefined') {
+                negatedCastlingOptions.push(castleOption);
+            }
         });
 
         // remove the negated castling options from the FEN array
-        
+        negatedCastlingOptions.forEach((negated) => {
+            const index = FENarray.indexOf(negated);
+            if (index > -1) {
+                FENarray.splice(index, 1);
+            }
+        });
+        return FENarray.join('');
     } catch (e) {
         return '';
     }
