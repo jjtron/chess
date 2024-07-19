@@ -23,6 +23,7 @@ export default function Board() {
     const [squares, setSquares] = useState(setup);
     const [opponentSelf, setOpponentSelf] = useState(true);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
+    const [castleFen, setCastleFen] = useState('');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
@@ -114,6 +115,10 @@ export default function Board() {
                     <p className="pr-2">Play against myself</p>
                     <input type="checkbox" defaultChecked onClick={() => {setOpponentSelf(!opponentSelf)}}/>
                 </div>
+                <div className='flex flex-row justify-between w-[640px]'>
+                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('q')})}>Castle</div>
+                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('k')})}>Castle</div>
+                </div>
                 {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
                         <div key={rank} className='flex flex-row'>
@@ -143,6 +148,10 @@ export default function Board() {
                         </div>
                     )
                 })}
+                <div className='flex flex-row justify-between w-[640px]'>
+                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('Q')})}>Castle</div>
+                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('K')})}>Castle</div>
+                </div>
                 <a href="https://greenchess.net/index.php" className="flex flex-row mt-2">
                     <p className="pr-2">Chess piece images by Green Chess</p>
                     <FaLink className="mt-1"/>
@@ -201,7 +210,8 @@ export default function Board() {
             kingRookMovedRecord[pieceMove.src][0] = true;
         }
 
-        getCastlingStatus(gameClient, kingRookMovedRecord, color === 'w' ? 'b' : 'w');
+        const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, color === 'w' ? 'b' : 'w');
+        setCastleFen(castleString);
         // reset check variable in case there has been a check
         // (getCastlingStatus examines the check variable to determine castling status)
         check = false;
