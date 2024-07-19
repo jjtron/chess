@@ -21,7 +21,7 @@ gameClient.on('promote', () => { promote = true; });
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const [opponentSelf, setOpponentSelf] = useState(true);
+    const [opponentSelf, setOpponentSelf] = useState(false);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
     const mouseSensor = useSensor(MouseSensor);
@@ -36,7 +36,7 @@ export default function Board() {
         }
         if (!opponentSelf && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
 
-            getBlackAiMove(gameClient).then((blackAiMove) => {
+            getBlackAiMove(gameClient, castleFen).then((blackAiMove) => {
                 // get destination and source squares using the blackAiMove to pull
                 // from the gameClient set of next-moves-possible
                 const blackMove: PieceMove | undefined = getBlackMove(gameClient, blackAiMove);
@@ -92,7 +92,8 @@ export default function Board() {
                     kingRookMovedRecord[blackMove.src][0] = true;
                 }
 
-                getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
+                const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
+                setCastleFen(castleString);
                 // reset check variable in case there has been a check
                 // (getCastlingStatus examines the check variable to determine castling status)
                 check = false;
@@ -113,7 +114,7 @@ export default function Board() {
                 <div className="text-2xl">Chess</div>
                 <div className="flex flex-row border-[1px] border-white rounded-md px-2 mb-2">
                     <p className="pr-2">Play against myself</p>
-                    <input type="checkbox" defaultChecked onClick={() => {setOpponentSelf(!opponentSelf)}}/>
+                    <input type="checkbox" defaultChecked={opponentSelf} onClick={() => {setOpponentSelf(!opponentSelf)}}/>
                 </div>
                 <div className='flex flex-row justify-between w-[640px]'>
                     <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('q')})}>Castle</div>

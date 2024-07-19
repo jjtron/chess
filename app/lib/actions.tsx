@@ -219,7 +219,7 @@ export function getPrisonerExchange(color: string, pieceType: string): JSX.Eleme
     }
 }
 
-export function getBlackAiMove(gameClient: any) {
+export function getBlackAiMove(gameClient: any, castleFen: string) {
     return new Promise<string>((resolve, reject) => {
         try {
             const boardState = gameClient.getStatus().board.squares;
@@ -256,7 +256,7 @@ export function getBlackAiMove(gameClient: any) {
                     fenSplit.push(char);
                 }
             });
-            fen = fenSplit.join('') + ' b';
+            fen = fenSplit.join('') + ' b' + ' ' + castleFen;
             const DEPTH = 4;
             // get the artificailly intelligent best next move
             if (typeof stockfish !== 'undefined') {
