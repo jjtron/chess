@@ -4,10 +4,12 @@ import {AlgebraicGameClient} from 'chess';
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
+import { check } from '../ui/Board';
 
 export function getCastlingStatus(
     gameClient: AlgebraicGameClient,
-    kingRookMovedRecord: any
+    kingRookMovedRecord: any,
+    color: string
 ) {
     /*
         1 Neither the king nor the rook has previously moved.
@@ -37,21 +39,50 @@ export function getCastlingStatus(
         });
 
         // test condition 1
-        // create list of negated castling options by examining the kingRookMovedRecord variable
+        // create list of negated castling-options by examining the kingRookMovedRecord variable
         const negatedCastlingOptions: string[] = Object.keys(kingRookMovedRecord).filter((moveSquare) => {
             return kingRookMovedRecord[moveSquare][0] === true;
         }).map((moveSquare) => {
             return kingRookMovedRecord[moveSquare][1];
         }).join('').split('');
-        // remove the negated castling options from the FEN array
-        negatedCastlingOptions.forEach((movedsquare) => {
-            const end = FENarray.length - 1;
-            if (FENarray.indexOf(movedsquare) > -1) {
-                const start = FENarray.indexOf(movedsquare);
-                FENarray = FENarray.slice(start, end);
+
+        // test condition 3
+        // add negated castling-options for a checked condition
+        if (check) {
+            if (color === 'w') {
+                negatedCastlingOptions.push('K');
+                negatedCastlingOptions.push('Q');
+            } else {
+                negatedCastlingOptions.push('k');
+                negatedCastlingOptions.push('q');
             }
+        }
+
+        // test condition 4
+        // Scan through the notated moves available to find negating condition(s)
+        // to add to the negatedCastlingOptions array
+        // A negated condition will manifest as not having a move for
+        // the king into its castle postion
+        const nextMoves = gameClient.getStatus().notatedMoves;
+        const castleOptionVsKingsDest: any = {
+            Q: 'c1',
+            K: 'g1',
+            q: 'c8',
+            k: 'g8'
+        };
+        const nextMovesKeys = Object.keys(nextMoves);
+        FENarray.forEach((castleOption) => {
+                const destFound = nextMovesKeys.find((move) => {
+                    return nextMoves[move].src.piece.type === 'king' &&
+                           nextMoves[move].dest.file === castleOptionVsKingsDest[castleOption].charAt(0) &&
+                           nextMoves[move].dest.rank === Number(castleOptionVsKingsDest[castleOption].charAt(1))
+                });
+                if (typeof destFound === 'undefined') {
+                    negatedCastlingOptions.push(castleOption);
+                }
         });
-        console.log(FENarray.join(''));
+
+        // remove the negated castling options from the FEN array
         
     } catch (e) {
         return '';
@@ -123,7 +154,7 @@ export function getPieceMove(
             case 'k': pieceType = 'king'; break;
         }
         ;
-        // 2) Make a copy of the notated moves status
+        // Make a copy of the notated moves status
         const nextMoves = gameClient.getStatus().notatedMoves;
 
         // search through it for a match of the src in terms of rank, file, and pieceType

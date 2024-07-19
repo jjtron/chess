@@ -13,13 +13,15 @@ import { FaLink } from "react-icons/fa";
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
 gameClient.on('checkmate', () => { checkMate = true; });
+export var check: boolean = false;
+gameClient.on('check', () => { check = true; });
 export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const [opponentSelf, setOpponentSelf] = useState(false);
+    const [opponentSelf, setOpponentSelf] = useState(true);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
@@ -89,7 +91,10 @@ export default function Board() {
                     kingRookMovedRecord[blackMove.src][0] = true;
                 }
 
-                getCastlingStatus(gameClient, kingRookMovedRecord);
+                getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
+                // reset check variable in case there has been a check
+                // (getCastlingStatus examines the check variable to determine castling status)
+                check = false;
 
             }).catch((e) => {
                 console.log(e);
@@ -107,7 +112,7 @@ export default function Board() {
                 <div className="text-2xl">Chess</div>
                 <div className="flex flex-row border-[1px] border-white rounded-md px-2 mb-2">
                     <p className="pr-2">Play against myself</p>
-                    <input type="checkbox" onClick={() => {setOpponentSelf(!opponentSelf)}}/>
+                    <input type="checkbox" defaultChecked onClick={() => {setOpponentSelf(!opponentSelf)}}/>
                 </div>
                 {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
@@ -196,7 +201,10 @@ export default function Board() {
             kingRookMovedRecord[pieceMove.src][0] = true;
         }
 
-        getCastlingStatus(gameClient, kingRookMovedRecord);
+        getCastlingStatus(gameClient, kingRookMovedRecord, color === 'w' ? 'b' : 'w');
+        // reset check variable in case there has been a check
+        // (getCastlingStatus examines the check variable to determine castling status)
+        check = false;
 
       } catch(e) {
         console.log(e);
