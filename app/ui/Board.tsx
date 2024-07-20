@@ -31,7 +31,7 @@ export default function Board() {
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
-        if (!opponentSelf && !checkMate && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
+        if (!opponentSelf && !checkMate && Object.keys(nextMoves).length > 0 && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
 
             getBlackAiMove(gameClient, castleFen).then((blackAiMove) => {
                 // get destination and source squares using the blackAiMove to pull
@@ -92,7 +92,13 @@ export default function Board() {
                 }
 
                 // un-highlight the square where black is going to move to
-                setTimeout(() => setBlackMoveHighlight(``), 1500);
+                setTimeout(() => {
+                    setBlackMoveHighlight(``);
+                    if (checkMate) {
+                        alert('Checkmate');
+                        checkMate = false;
+                    }
+                }, checkMate? 500 : 1500);
 
                 // set that a king or rook has moved if one has moved
                 if (kingRookMovedRecord.hasOwnProperty(blackMove.src)) {
@@ -110,13 +116,6 @@ export default function Board() {
             });
         }
     }), [squares, blackMoveHighlight];
-
-    useEffect(() => {
-        if (checkMate) {
-            alert('Checkmate');
-            return;
-        }
-    }, [checkMate]);
 
     return (
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
@@ -250,6 +249,10 @@ export default function Board() {
         // reset check variable in case there has been a check
         // (getCastlingStatus examines the check variable to determine castling status)
         check = false;
+
+        if (checkMate) {
+            setTimeout(() => { alert('Checkmate'); }, 500);
+        }
 
       } catch(e) {
         console.log(e);
