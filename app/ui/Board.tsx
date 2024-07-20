@@ -73,6 +73,16 @@ export default function Board() {
                 // delete the square from the newSquares configuration from which the draggable came from
                 delete newSquares[blackMove.src];
 
+                if (blackMove.notation === 'O-O') {
+                    newSquares['f8'] = ['rb2', draggables['rb2']];
+                    delete newSquares['h8'];
+                }
+
+                if (blackMove.notation === 'O-O-O') {
+                    newSquares['d8'] = ['rb1', draggables['rb1']];
+                    delete newSquares['a8'];
+                }
+
                 // highlight the square where black is going to move to
                 setBlackMoveHighlight(blackMove.dest);
                 
@@ -197,6 +207,26 @@ export default function Board() {
 
         // delete the square from the newSquares configuration from which the draggable came from
         delete newSquares[pieceMove.src];
+
+        if (pieceMove.notation === 'O-O') {
+            if (color === 'w') {
+                newSquares['f1'] = ['rw2', draggables['rw2']];
+                delete newSquares['h1'];
+            } else {
+                newSquares['f8'] = ['rb2', draggables['rb2']];
+                delete newSquares['h8'];
+            }
+        }
+
+        if (pieceMove.notation === 'O-O-O') {
+            if (color === 'w') {
+                newSquares['d1'] = ['rw1', draggables['rw1']];
+                delete newSquares['a1'];
+            } else {
+                newSquares['d8'] = ['rb1', draggables['rb1']];
+                delete newSquares['a8'];
+            }
+        }
 
         // set the new config
         setSquares(newSquares);
