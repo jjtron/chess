@@ -31,11 +31,7 @@ export default function Board() {
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
-        if (checkMate) {
-            alert('Checkmate');
-            return;
-        }
-        if (!opponentSelf && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
+        if (!opponentSelf && !checkMate && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
 
             getBlackAiMove(gameClient, castleFen).then((blackAiMove) => {
                 // get destination and source squares using the blackAiMove to pull
@@ -114,6 +110,13 @@ export default function Board() {
             });
         }
     }), [squares, blackMoveHighlight];
+
+    useEffect(() => {
+        if (checkMate) {
+            alert('Checkmate');
+            return;
+        }
+    }, [checkMate]);
 
     return (
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
