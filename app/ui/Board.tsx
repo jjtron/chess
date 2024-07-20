@@ -27,6 +27,7 @@ export default function Board() {
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
+    const castleText = 'To castle, move your King first, the rook will follow';
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
@@ -127,8 +128,8 @@ export default function Board() {
                     <input type="checkbox" defaultChecked={opponentSelf} onClick={() => {setOpponentSelf(!opponentSelf)}}/>
                 </div>
                 <div className='flex flex-row justify-between w-[640px]'>
-                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('q')})}>Castle</div>
-                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('k')})}>Castle</div>
+                    <div className={clsx('border-2 border-white text-xs', {'invisible' : !castleFen.includes('q')})}>{castleText}</div>
+                    <div className={clsx('border-2 border-white text-xs', {'invisible' : !castleFen.includes('k')})}>{castleText}</div>
                 </div>
                 {[8, 7, 6, 5, 4, 3, 2, 1].map((rank: number, i: number) => {
                     return (
@@ -160,8 +161,8 @@ export default function Board() {
                     )
                 })}
                 <div className='flex flex-row justify-between w-[640px]'>
-                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('Q')})}>Castle</div>
-                    <div className={clsx('border-2 border-white', {'invisible' : !castleFen.includes('K')})}>Castle</div>
+                    <div className={clsx('border-2 border-white text-xs', {'invisible' : !castleFen.includes('Q')})}>{castleText}</div>
+                    <div className={clsx('border-2 border-white text-xs', {'invisible' : !castleFen.includes('K')})}>{castleText}</div>
                 </div>
                 <a href="https://greenchess.net/index.php" className="flex flex-row mt-2">
                     <p className="pr-2">Chess piece images by Green Chess</p>
