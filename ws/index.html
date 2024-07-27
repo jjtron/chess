@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+    <head>
+        <script>
+            function myFunction(n) {
+                socket.emit('i am client', {data: 'fooBarToh', id: 'data.id', more: n});
+            }
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+        <script>
+            var socket = io();
+
+            socket.on('welcome', function(data) {
+                addMessage(data.message);
+            });
+            socket.on('time', function(data) {
+                addMessage(data.time);
+            });
+            socket.on('error', console.error.bind(console));
+            socket.on('message', console.log.bind(console));
+
+            function addMessage(message) {
+                var text = document.createTextNode(message),
+                    el = document.createElement('li'),
+                    messages = document.getElementById('messages');
+                el.appendChild(text);
+                messages.appendChild(el);
+            }
+        </script>
+        <button onclick="myFunction(Math. floor(Math. random()*10))">Click me</button>
+    </head>
+    <body>
+        <ul id='messages'></ul>
+    </body>
+</html>

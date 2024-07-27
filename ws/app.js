@@ -9,9 +9,18 @@ const httpServer = http.createServer(app);
 const io = require("socket.io")(httpServer, {
     cors: {
       origin: '*',
-      methods: 'GET'
+      methods: ['GET','POST']
     }
-  });
+});
+
+fs = require('fs'),
+// NEVER use a Sync function except at start-up!
+index = fs.readFileSync(__dirname + '/index.html');
+
+app.get('/', function(req, res) {
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(index);
+});
 
 // Send current time to all connected clients
 function sendTime() {
@@ -23,8 +32,14 @@ setInterval(sendTime, 3000);
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+  // Use socket to communicate with this particular client only, sending it it's own id
+  socket.emit('welcome', { message: 'Welcome!', id: socket.id });
+  socket.on('i am client', (data) => {
+    console.log(data, socket.id);
+  });
 });
 
-httpServer.listen(3001, () => {
-  console.log('listening on *:3001');
+const PORT=`300${Math. floor(Math. random()*10)}`;
+httpServer.listen(Number(PORT), () => {
+  console.log(`listening on *:${PORT}`);
 });
