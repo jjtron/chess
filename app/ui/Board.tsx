@@ -10,7 +10,7 @@ import {getBlackMove, getPieceMove, getPrisonerExchange,
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:3002";
+const ENDPOINT = "https://portfolio.gp-web-dev.com:8445";
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;

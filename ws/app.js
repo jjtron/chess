@@ -2,13 +2,13 @@ const express = require('express');
 var cors = require('cors');
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000'
+    origin: 'https://chess.gp-web-dev.com:8444'
 }));
 const http = require('http');
 const httpServer = http.createServer(app);
 const io = require("socket.io")(httpServer, {
     cors: {
-      origin: '*',
+      origin: 'https://chess.gp-web-dev.com:8444',
       methods: ['GET','POST']
     }
 });
@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT=`3002`; //${Math. floor(Math. random()*10)}`;
+const PORT=`3003`; //${Math. floor(Math. random()*10)}`;
 httpServer.listen(Number(PORT), () => {
   console.log(`listening on *:${PORT}`);
 });
