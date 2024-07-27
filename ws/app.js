@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT=`300${Math. floor(Math. random()*10)}`;
+const PORT=`3002`; //${Math. floor(Math. random()*10)}`;
 httpServer.listen(Number(PORT), () => {
   console.log(`listening on *:${PORT}`);
 });
