@@ -10,7 +10,8 @@ import {getBlackMove, getPieceMove, getPrisonerExchange,
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "https://portfolio.gp-web-dev.com:8445";
+const DEVENDPOINT = "http://localhost:3003";
+const PRODENDPOINT = "https://portfolio.gp-web-dev.com:8445";
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -19,7 +20,7 @@ export var check: boolean = false;
 gameClient.on('check', () => { check = true; });
 export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
-export const socket = socketIOClient(ENDPOINT);
+export const socket = socketIOClient(DEVENDPOINT);
 
 export default function Board() {
     const [activeDraggable, setActiveDraggable] = useState('');
@@ -31,7 +32,12 @@ export default function Board() {
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
     const castleText = 'To castle, move King first, rook will follow';
-    const [response, setResponse] = useState("");
+
+    useEffect(() => {
+        socket.on('time', function(data) {
+            console.log(data.time);
+        },);
+    }, []);
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
