@@ -37,12 +37,12 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   // Use socket to communicate with this particular client only, sending it it's own id
   socket.on('i am client', (data) => {
-    console.log(data, socket.id, rooms);
     if (rooms.indexOf(socket.id) === -1) {
-      rooms.push(socket.id);
+      rooms.push({ username: data, socketid: socket.id });
       socket.join(socket.id);
     }
-    io.to(socket.id).emit('time', { time: new Date().toJSON() });
+    io.to(socket.id).emit( 'myid', socket.id );
+    console.log(rooms);
   });
 });
 

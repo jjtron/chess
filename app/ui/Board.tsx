@@ -22,7 +22,7 @@ export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 export const socket = socketIOClient(DEVENDPOINT);
 
-export default function Board() {
+export default function Board({username} : any) {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
     const [opponentSelf, setOpponentSelf] = useState(false);
@@ -34,8 +34,8 @@ export default function Board() {
     const castleText = 'To castle, move King first, rook will follow';
 
     useEffect(() => {
-        socket.on('time', function(data) {
-            console.log(data.time);
+        socket.on('myid', function(data) {
+            console.log(data);
         },);
     }, []);
 
@@ -135,11 +135,11 @@ export default function Board() {
         >
             <div className='flex flex-col items-center'>
                 <div className="text-2xl">Chess</div>
-                <div className="flex flex-row border-[1px] border-white rounded-md px-2 mb-2">
+                <div className="flex flex-row border-[1px] border-white rounded-md p-1">
                     <p className="pr-2">Play against myself</p>
                     <input type="checkbox" defaultChecked={opponentSelf} onClick={() => {setOpponentSelf(!opponentSelf)}}/>
                 </div>
-                <div className='flex flex-row justify-between w-[640px]'>
+                <div className='flex flex-row justify-between md:w-[640px] w-[320px]'>
                     <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('q')})}>{castleText}</div>
                     <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('k')})}>{castleText}</div>
                 </div>
@@ -172,7 +172,7 @@ export default function Board() {
                         </div>
                     )
                 })}
-                <div className='flex flex-row justify-between w-[640px]'>
+                <div className='flex flex-row justify-between md:w-[640px] w-[320px]'>
                     <div className={clsx('border rounded border-white text-xs px-1 mt-1', {'invisible' : !castleFen.includes('Q')})}>{castleText}</div>
                     <div className={clsx('border rounded border-white text-xs px-1 mt-1', {'invisible' : !castleFen.includes('K')})}>{castleText}</div>
                 </div>
@@ -263,7 +263,7 @@ export default function Board() {
         if (checkMate) {
             setTimeout(() => { alert('Checkmate'); }, 500);
         }
-        socket.emit('i am client', pieceMove);
+        socket.emit('i am client', {username});
 
       } catch(e) {
         console.log(e);
