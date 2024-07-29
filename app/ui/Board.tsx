@@ -9,9 +9,9 @@ import {getBlackMove, getPieceMove, getPrisonerExchange,
         getBlackAiMove, getCastlingStatus} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import { FaLink } from "react-icons/fa";
-import socketIOClient from "socket.io-client";
-const DEVENDPOINT = "http://localhost:3003";
-const PRODENDPOINT = "https://portfolio.gp-web-dev.com:8445";
+//import socketIOClient from "socket.io-client";
+//const DEVENDPOINT = "http://localhost:3003";
+//const PRODENDPOINT = "https://portfolio.gp-web-dev.com:8445";
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
@@ -20,9 +20,9 @@ export var check: boolean = false;
 gameClient.on('check', () => { check = true; });
 export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
-export const socket = socketIOClient(DEVENDPOINT);
+//export const socket = socketIOClient(DEVENDPOINT);
 
-export default function Board({username} : any) {
+export default function Board({username, socket} : any) {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
     const [opponentSelf, setOpponentSelf] = useState(false);
@@ -34,7 +34,7 @@ export default function Board({username} : any) {
     const castleText = 'To castle, move King first, rook will follow';
 
     useEffect(() => {
-        socket.on('myid', function(data) {
+        socket.on('myid', function(data: any) {
             console.log(data);
         },);
     }, []);
