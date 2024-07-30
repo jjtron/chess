@@ -16,8 +16,9 @@ export var check: boolean = false;
 gameClient.on('check', () => { check = true; });
 export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
+import { useWebSocketContext } from "../webSocketContext";
 
-export default function Board({username, socket} : any) {
+export default function Board({username} : any) {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
     const [opponentSelf, setOpponentSelf] = useState(false);
@@ -27,11 +28,17 @@ export default function Board({username, socket} : any) {
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
     const castleText = 'To castle, move King first, rook will follow';
-
-    useEffect(() => {
+    const socket = useWebSocketContext();
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve('timeout error');
+        }, 5000);
         socket.on('myid', function(data: any) {
-            console.log(data);
-        },);
+          resolve(data);
+        });
+    });
+    useEffect(() => {
+
     }, []);
 
     useEffect(() => {
@@ -201,6 +208,13 @@ export default function Board({username, socket} : any) {
         if (checkMate) {
             setTimeout(() => { alert('Checkmate'); }, 500);
         }
+        promise.then(
+            (data) => {
+                console.log(data);
+            })
+            .catch(() => {
+                console.log('error');
+            });
         socket.emit('i am client', {username});
 
       } catch(e) {
