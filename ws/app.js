@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_message', (addressee) => {
-    io.to(addressee).emit('message_to_addressee', 'from ' + socket.id);
+    io.to(addressee).emit('message_to_addressee', 'message from opponent: ' + socket.id);
   })
 
 // BEGIN: for test only when using the 'index.html'

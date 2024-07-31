@@ -43,12 +43,16 @@ export default function Dnd() {
     });
   }
 
-  function handleSendMessage(e: any) {
-    socket.emit('send_message', e.target.value);
+  function handleIdentify() {
+    socket.emit('send_message', opponent);
+  }
+
+  function handleSetOpponent(e: any) {
+    setOpponent(e.target.value);
   }
 
   if (showboard) {
-    return <Board username={username} />
+    return <Board username={username} opponent={opponent} />
   } else {
     return (
       <div className='p-2'>
@@ -69,9 +73,14 @@ export default function Dnd() {
           <button onClick={handleRegister}  className='py-1 bg-slate-300 border border-white rounded-md text-black'>Register</button>
           <p>{registrationID}</p>
         </div>
-        <div className='py-1'>
-          <p>SendMessage To . . .</p>
-          <input type='text' defaultValue='' onChange={handleSendMessage} className='px-1 text-black' />
+        <div className='p-2'>
+          <p>Opponent</p>
+          <input type='text' value={opponent} onChange={handleSetOpponent} className='px-1 text-black' />
+        </div>
+        <div className='p-2'>
+          <button onClick={handleIdentify}  className='py-1 bg-slate-300 border border-white rounded-md text-black'>Identify</button>
+        </div>
+        <div className='p-2'>
           <p>{message}</p>
         </div>
       </div>
