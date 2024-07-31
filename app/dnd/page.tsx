@@ -25,13 +25,8 @@ export default function Dnd() {
   function handleOpponent(e: any) {
     setOpponent(e.target.value);
   }
-  function handleTest() {
-    socket.emit('i am client', username);
-    promise.then((data) => {
-      console.log(data);
-    }).catch((e) => {
-      console.log(e);
-    });
+  function handleRegister() {
+    socket.emit('register', [ username, opponent ]);
   }
 
   if (showboard) {
@@ -51,7 +46,7 @@ export default function Dnd() {
           <button onClick={handleClick}  className='py-1 bg-slate-300 border border-white rounded-md text-black'>Start Playing</button>
         </div>
         <div className='p-2'>
-          <button onClick={handleTest}  className='py-1 bg-slate-300 border border-white rounded-md text-black'>Register</button>
+          <button onClick={handleRegister}  className='py-1 bg-slate-300 border border-white rounded-md text-black'>Register</button>
         </div>
       </div>
     );

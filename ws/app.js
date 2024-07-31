@@ -31,9 +31,19 @@ app.get('/', function(req, res) {
 let rooms = [];
 
 io.on('connection', (socket) => {
-  console.log('a user connected', socket.id);
-  // Use socket to communicate with this particular client only, sending it it's own id
-
+  socket.on('register', (data) => {
+    rooms.push(socket.id);
+  });
+  socket.on('cleanup', () => {
+    const list = getList().then((list) => {
+      for (const socket of list) {
+        if (rooms.indexOf(socket.id) === -1) {
+          socket.disconnect();
+        }
+      }
+    });
+  })
+  
   // for test only
   socket.on('i am client', () => {
     const resFn = setTimeout(() => {
@@ -45,6 +55,11 @@ io.on('connection', (socket) => {
   });
   // for test only
 });
+
+async function getList() {
+  const sockets = await io.fetchSockets();
+  return sockets;
+};
 
 const PORT=`3003`; //${Math. floor(Math. random()*10)}`;
 httpServer.listen(Number(PORT), () => {
