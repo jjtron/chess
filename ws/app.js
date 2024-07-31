@@ -20,8 +20,17 @@ io.on('connection', (socket) => {
     socket.emit('registrationID', socket.id);
   });
 
-  socket.on('send_message', (addressee) => {
-    io.to(addressee).emit('message_to_addressee', 'message from opponent: ' + socket.id);
+  socket.on('hand_shake', (opponent) => {
+    io.to(opponent).emit('message_to_opponent',
+        { 
+          message: socket.id,
+          from: socket.id
+        }
+      )
+  });
+
+  socket.on('hand_shake_response', (opponent) => {
+    io.to(opponent).emit('response_from_opponent', 'Handshake with opponent, ' + socket.id + ', success.');
   })
 
 // BEGIN: for test only when using the 'index.html'
