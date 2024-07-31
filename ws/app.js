@@ -33,6 +33,10 @@ io.on('connection', (socket) => {
     io.to(opponent).emit('response_from_opponent', 'Handshake with opponent, ' + socket.id + ', success.');
   })
 
+  socket.on('move', (move) => {
+    console.log('MOVE: ', move);
+  })
+
 // BEGIN: for test only when using the 'index.html'
 /*
 fs = require('fs'),

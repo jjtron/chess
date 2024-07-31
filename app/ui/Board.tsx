@@ -18,7 +18,7 @@ export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
 
-export default function Board({username} : any) {
+export default function Board({opponent} : { opponent: string }) {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
     const [opponentSelf, setOpponentSelf] = useState(false);
@@ -215,7 +215,7 @@ export default function Board({username} : any) {
             .catch(() => {
                 console.log('error');
             });
-        socket.emit('i am client', {username});
+        socket.emit('move', {opponent: opponent, color: color });
 
       } catch(e) {
         console.log(e);

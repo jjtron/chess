@@ -6,7 +6,6 @@ import clsx from 'clsx';
 
 export default function Dnd() {
   const [showboard, setShowboard] = useState(false);
-  const [username, setUsername] = useState('');
   const [opponent, setOpponent] = useState('');
   const [registrationID, setRegistrationID] = useState('');
   const [message, setMessage] = useState('');
@@ -44,8 +43,12 @@ export default function Dnd() {
     setOpponent(e.target.value);
   }
 
+  function handleShowboard() {
+    setShowboard(true);
+  }
+
   if (showboard) {
-    return <Board username={username} opponent={opponent} />
+    return <Board opponent={opponent} />
   } else {
     return (
       <div className='p-2'>
@@ -69,6 +72,12 @@ export default function Dnd() {
         </div>
         <div className={clsx('p-2', {'hidden' : !message })}>
           <p>Handshake message from opponent with id: {message}</p>
+        </div>
+        <div className={clsx('p-2', {'hidden' : !message || !messageResponse })}>
+          <button onClick={handleShowboard}
+                  className={clsx('px-2 bg-slate-300 border border-white rounded-md text-black',
+                            { 'text-black' :  !!opponent, 'text-slate-600' : !opponent } )}>Play
+          </button>
         </div>
       </div>
     );
