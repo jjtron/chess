@@ -34,7 +34,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('move', (move) => {
-    console.log('move');
     io.to(move.opponent).emit('remote_move', move);
   });
 
