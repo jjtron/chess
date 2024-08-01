@@ -29,17 +29,6 @@ export default function Board({opponent} : { opponent: string }) {
     const sensors = useSensors(mouseSensor, touchSensor);
     const castleText = 'To castle, move King first, rook will follow';
     const socket = useWebSocketContext();
-    const promise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve('timeout error');
-        }, 5000);
-        socket.on('myid', function(data: any) {
-          resolve(data);
-        });
-    });
-    useEffect(() => {
-
-    }, []);
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
@@ -208,13 +197,7 @@ export default function Board({opponent} : { opponent: string }) {
         if (checkMate) {
             setTimeout(() => { alert('Checkmate'); }, 500);
         }
-        promise.then(
-            (data) => {
-                console.log(data);
-            })
-            .catch(() => {
-                console.log('error');
-            });
+        
         socket.emit('move', {opponent: opponent, color: color });
 
       } catch(e) {
