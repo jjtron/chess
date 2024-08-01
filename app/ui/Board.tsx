@@ -21,7 +21,7 @@ import { useWebSocketContext } from "../webSocketContext";
 export default function Board({opponent} : { opponent: string }) {
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const [opponentSelf, setOpponentSelf] = useState(false);
+    const [opponentSelf, setOpponentSelf] = useState(true);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
     const mouseSensor = useSensor(MouseSensor);
@@ -38,6 +38,9 @@ export default function Board({opponent} : { opponent: string }) {
                 // get destination and source squares using the blackAiMove to pull
                 // from the gameClient set of next-moves-possible
                 const blackMove: PieceMove | undefined = getBlackMove(gameClient, blackAiMove);
+                if (blackMove) {
+                    console.log('blackMove', blackMove.notation);
+                }
                 if (blackMove === undefined) { throw Error(''); }
 
                 // update the GameClient
@@ -122,6 +125,7 @@ export default function Board({opponent} : { opponent: string }) {
       try {
 
         const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
+        console.log('whiteMove', pieceMove);
         if (pieceMove === undefined) { throw Error('Failure to register piece move'); }
 
         // update the GameClient
@@ -139,6 +143,7 @@ export default function Board({opponent} : { opponent: string }) {
 
         // Create a new setup configuration
         const newSquares = {...squares};
+        console.log(newSquares);
 
         if (promote) {
             // if this is a promotion . . .
@@ -198,12 +203,92 @@ export default function Board({opponent} : { opponent: string }) {
             setTimeout(() => { alert('Checkmate'); }, 500);
         }
         
-        socket.emit('move', {opponent: opponent, color: color });
+        socket.emit('move', {
+            opponent: opponent,
+            pieceMove: pieceMove,
+            color: color
+        });
 
       } catch(e) {
         console.log(e);
       }
     }
+
+    socket.on('remote_move', (move) => {
+                // update the GameClient
+                console.log('remote_move move.notation', move.pieceMove.notation);
+                const r = gameClient.move(move.pieceMove.notation);
+                const color = r.move.postSquare.piece.side.name.charAt(0);
+
+                // see if there was a capture
+                let capturedDraggableId: string | null = null;
+                if (r.move.capturedPiece) {
+                    // get the id of the captured draggable
+                    capturedDraggableId = squares[move.dest][0];
+                    // Update the list of captured pieces
+                    capturedPieces.push(capturedDraggableId);
+                }
+
+                // Create a new setup configuration
+                const newSquares = {...squares};
+
+                if (promote) {
+                    // if this is a promotion . . .
+                    promote = false;
+                    const pieceType = move.pieceMove.notation.charAt(2).toLowerCase();
+                    const newDraggable: JSX.Element | undefined = getPrisonerExchange(move.color, pieceType);
+                    if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
+                    newSquares[move.pieceMove.dest] = [newDraggable.props.id, newDraggable];
+                } else {
+                    // assign the active draggable identifier and its corresponding draggable object to the over.id
+                    const nextMoveDraggable: [ string, JSX.Element ] = squares[move.pieceMove.src];
+                    newSquares[move.pieceMove.dest] = [nextMoveDraggable[0], nextMoveDraggable[1]];
+                }
+                // delete the square from the newSquares configuration from which the draggable came from
+                delete newSquares[move.pieceMove.src];
+
+                if (move.pieceMove.notation === 'O-O') {
+                    newSquares['f8'] = ['rb2', draggables['rb2']];
+                    delete newSquares['h8'];
+                }
+
+                if (move.pieceMove.notation === 'O-O-O') {
+                    newSquares['d8'] = ['rb1', draggables['rb1']];
+                    delete newSquares['a8'];
+                }
+
+                // highlight the square where black is going to move to
+                setBlackMoveHighlight(move.pieceMove.dest);
+                
+                // set new squares configuration
+                setSquares(newSquares);
+
+                if (capturedDraggableId) {
+                    // delete the captured draggable from the draggables 
+                    delete draggables[capturedDraggableId];
+                }
+
+                // un-highlight the square where black is going to move to
+                setTimeout(() => {
+                    setBlackMoveHighlight(``);
+                    if (checkMate) {
+                        alert('Checkmate');
+                        checkMate = false;
+                    }
+                }, checkMate? 500 : 1500);
+
+                // set that a king or rook has moved if one has moved
+                if (kingRookMovedRecord.hasOwnProperty(move.pieceMove.src)) {
+                    kingRookMovedRecord[move.pieceMove.src][0] = true;
+                }
+
+                const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
+                setCastleFen(castleString);
+                // reset check variable in case there has been a check
+                // (getCastlingStatus examines the check variable to determine castling status)
+                check = false;
+
+    })
 
     function handleDragStart(e: any){
         setActiveDraggable(e.active.id);

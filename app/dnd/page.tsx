@@ -11,11 +11,6 @@ export default function Dnd() {
   const [message, setMessage] = useState('');
   const [messageResponse, setMessageResponse] = useState('');
   const socket = useWebSocketContext();
-  const promise = new Promise((resolve, reject) => {
-    socket.on('registrationID', function(socketID: string) {
-      resolve(socketID);
-    });
-  });
 
   socket.on('message_to_opponent', function(message: { message: string, from: string}) {
     setMessage(message.message);
@@ -26,14 +21,21 @@ export default function Dnd() {
     setMessageResponse(messageResponse);
   });
 
-  (() => {
-    socket.emit('register');
-    promise.then((registrationID) => {
-      if (typeof registrationID === 'string') {
-        setRegistrationID(registrationID);
-      }
-    });
-  })();
+  useEffect(() => {
+    (() => {
+      const promise = new Promise((resolve, reject) => {
+        socket.on('registrationID', function(socketID: string) {
+          resolve(socketID);
+        });
+      });
+      socket.emit('register');
+      promise.then((registrationID) => {
+        if (typeof registrationID === 'string') {
+          setRegistrationID(registrationID);
+        }
+      });
+    })();
+  }, [socket]);
 
   function handleHandshake() {
     socket.emit('hand_shake', opponent);
@@ -55,11 +57,12 @@ export default function Dnd() {
         <div className='p-2'>
           <p>Your registrationID is
             <span className={clsx('pl-2', {'hidden' : !!registrationID })} >. . .</span>
-            <span className='pl-1 text-lime-500'>{registrationID}</span>
+            <span className={clsx('pl-2', {'hidden' : !registrationID })} >:</span>
+            <span className='pl-1 text-lime-500'>&nbsp;{registrationID}</span>
           </p>
         </div>
         <div className={clsx('p-2', {'hidden' : !registrationID })}>
-          <p>Paste Opponent's Registration ID here, and click Handshake to get started.</p>
+          <p>Paste Opponent&apos;s Registration ID here, and click Handshake to get started.</p>
           <input type='text' value={opponent} onChange={handleSetOpponent} className='px-1 text-black' />
         </div>
         <div className={clsx('flex flex-row p-2', {'hidden' : !registrationID })}>

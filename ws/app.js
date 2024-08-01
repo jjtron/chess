@@ -34,8 +34,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on('move', (move) => {
-    console.log('MOVE: ', move);
-  })
+    console.log('move');
+    io.to(move.opponent).emit('remote_move', move);
+  });
 
 // BEGIN: for test only when using the 'index.html'
 /*
