@@ -24,12 +24,16 @@ export default function Board({opponent} : { opponent: string }) {
     const [opponentSelf, setOpponentSelf] = useState(true);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
+    const [remoteMove, setRemoteMove] = useState({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
     const castleText = 'To castle, move King first, rook will follow';
     const socket = useWebSocketContext();
-    let remoteMove: any;
+
+    useEffect(() => {
+        handleRemoteMove();
+    }, [remoteMove]);
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
@@ -123,10 +127,13 @@ export default function Board({opponent} : { opponent: string }) {
     }), [squares, blackMoveHighlight];
 
     socket.on('remote_move', (move) => {
-        remoteMove = move;
+        setRemoteMove(move);
     });
 
     function handleRemoteMove() {
+        // ignore first useEffect that executes handleRemoteMove()
+        if (remoteMove.opponent === '') { return; }
+
         // update the GameClient
         const r = gameClient.move(remoteMove.pieceMove.notation);
         const color = r.move.postSquare.piece.side.name.charAt(0);
@@ -135,7 +142,7 @@ export default function Board({opponent} : { opponent: string }) {
         let capturedDraggableId: string | null = null;
         if (r.move.capturedPiece) {
             // get the id of the captured draggable
-            capturedDraggableId = squares[remoteMove.dest][0];
+            capturedDraggableId = squares[remoteMove.pieceMove.dest][0];
             // Update the list of captured pieces
             capturedPieces.push(capturedDraggableId);
         }
@@ -300,7 +307,6 @@ export default function Board({opponent} : { opponent: string }) {
                     onDragStart={handleDragStart}
                     sensors={sensors}
         >
-            <button onClick={handleRemoteMove} >handleRemoteMove</button>
             <Squares
                 opponentSelf={opponentSelf}
                 setOpponentSelf={setOpponentSelf}
