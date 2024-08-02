@@ -1,7 +1,6 @@
 'use client'
 import React, {useState, useEffect} from 'react';
 import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
-import {Droppable} from './Droppable';
 import {draggables, setup, capturedPieces, kingRookMovedRecord} from '../lib/pieces';
 import chess from 'chess';
 import {getBlackMove, getPieceMove, getPrisonerExchange,
