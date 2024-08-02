@@ -48,9 +48,6 @@ export default function Board(
                 // get destination and source squares using the blackAiMove to pull
                 // from the gameClient set of next-moves-possible
                 const blackMove: PieceMove | undefined = getBlackMove(gameClient, blackAiMove);
-                if (blackMove) {
-                    console.log('blackMove', blackMove.notation);
-                }
                 if (blackMove === undefined) { throw Error(''); }
 
                 // update the GameClient
