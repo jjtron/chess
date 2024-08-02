@@ -17,10 +17,15 @@ export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
 
-export default function Board({opponent} : { opponent: string }) {
+export default function Board(
+    { opponent, isOpponentSelf } : 
+    {
+        opponent: string,
+        isOpponentSelf: boolean
+    }) 
+{
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
-    const [opponentSelf, setOpponentSelf] = useState(true);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
     const [remoteMove, setRemoteMove] = useState({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
@@ -28,6 +33,7 @@ export default function Board({opponent} : { opponent: string }) {
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
     const castleText = 'To castle, move King first, rook will follow';
+    const opponentSelf = isOpponentSelf;
     const socket = useWebSocketContext();
 
     useEffect(() => {
@@ -307,8 +313,6 @@ export default function Board({opponent} : { opponent: string }) {
                     sensors={sensors}
         >
             <Squares
-                opponentSelf={opponentSelf}
-                setOpponentSelf={setOpponentSelf}
                 castleFen={castleFen}
                 castleText={castleText}
                 blackMoveHighlight={blackMoveHighlight}

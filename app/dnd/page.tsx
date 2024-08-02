@@ -50,7 +50,7 @@ export default function Dnd() {
   }
 
   if (showboard) {
-    return <Board opponent={opponent} />
+    return <Board opponent={opponent} isOpponentSelf={true} />
   } else {
     return (
       <div className='p-2'>

@@ -3,14 +3,16 @@ import {Droppable} from './Droppable';
 import { FaLink } from "react-icons/fa";
 import clsx from 'clsx';
 
-export default function Squares({opponentSelf, setOpponentSelf, castleFen, castleText, blackMoveHighlight, squares} : any ) {
+export default function Squares({castleFen, castleText, blackMoveHighlight, squares} : any ) {
     return (<>
         <div className='flex flex-col items-center'>
         <div className="text-2xl">Chess</div>
+        {/*
         <div className="flex flex-row border-[1px] border-white rounded-md p-1">
             <p className="pr-2">Play against myself</p>
             <input type="checkbox" defaultChecked={opponentSelf} onClick={() => {setOpponentSelf(!opponentSelf)}}/>
         </div>
+        */}
         <div className='flex flex-row justify-between md:w-[640px] w-[320px]'>
             <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('q')})}>{castleText}</div>
             <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('k')})}>{castleText}</div>
