@@ -170,14 +170,25 @@ export default function Board(
         // delete the square from the newSquares configuration from which the draggable came from
         delete newSquares[remoteMove.pieceMove.src];
 
+        // castling moves rook along after the king is moved
         if (remoteMove.pieceMove.notation === 'O-O') {
-            newSquares['f8'] = ['rb2', draggables['rb2']];
-            delete newSquares['h8'];
+            if (color === 'b') {
+                newSquares['f8'] = ['rb2', draggables['rb2']];
+                delete newSquares['h8'];
+            } else {
+                newSquares['f1'] = ['rw2', draggables['rw2']];
+                delete newSquares['h1'];
+            }
         }
 
         if (remoteMove.pieceMove.notation === 'O-O-O') {
-            newSquares['d8'] = ['rb1', draggables['rb1']];
-            delete newSquares['a8'];
+            if (color === 'b') {
+                newSquares['d8'] = ['rb1', draggables['rb1']];
+                delete newSquares['a8'];
+            } else {
+                newSquares['d1'] = ['rw1', draggables['rw1']];
+                delete newSquares['a1'];
+            }
         }
 
         // highlight the square where black is going to move to
