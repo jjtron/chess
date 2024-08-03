@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
 import { check } from '../ui/Board';
 
+export const NEXT_PUBLIC_WSENDPOINT = process.env.NEXT_PUBLIC_WSENDPOINT;
+
 export function getCastlingStatus(
     gameClient: AlgebraicGameClient,
     kingRookMovedRecord: any,

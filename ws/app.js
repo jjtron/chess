@@ -1,16 +1,17 @@
 const express = require('express');
 var cors = require('cors');
 const app = express();
-const PRODORIGIN = 'https://chess.gp-web-dev.com:8444';
-const DEVORIGIN = 'http://localhost:3000';
+
+console.log('CORS origin: ', process.env.ORIGIN);
 app.use(cors({
-    origin: DEVORIGIN
+    origin: process.env.ORIGIN
 }));
+ 
 const http = require('http');
 const httpServer = http.createServer(app);
 const io = require("socket.io")(httpServer, {
     cors: {
-      origin: DEVORIGIN,
+      origin: process.env.ORIGIN,
       methods: ['GET','POST']
     }
 });
