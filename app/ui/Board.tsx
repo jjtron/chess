@@ -37,8 +37,97 @@ export default function Board(
     const socket = useWebSocketContext();
 
     useEffect(() => {
-        handleRemoteMove();
-    }, [remoteMove]);
+        // ignore first useEffect that executes handleRemoteMove()
+        if (remoteMove.opponent === '') { return; }
+
+        // update the GameClient
+        const r = gameClient.move(remoteMove.pieceMove.notation);
+        const color = r.move.postSquare.piece.side.name.charAt(0);
+
+        // see if there was a capture
+        let capturedDraggableId: string | null = null;
+        if (r.move.capturedPiece) {
+            // get the id of the captured draggable
+            capturedDraggableId = squares[remoteMove.pieceMove.dest][0];
+            // Update the list of captured pieces
+            capturedPieces.push(capturedDraggableId);
+        }
+
+        // Create a new setup configuration
+        const newSquares = {...squares};
+
+        if (promote) {
+            // if this is a promotion . . .
+            promote = false;
+            const pieceType = remoteMove.pieceMove.notation.charAt(2).toLowerCase();
+            const newDraggable: JSX.Element | undefined = getPrisonerExchange(remoteMove.color, pieceType);
+            if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
+            newSquares[remoteMove.pieceMove.dest] = [newDraggable.props.id, newDraggable];
+        } else {
+            // assign the active draggable identifier and its corresponding draggable object to the over.id
+            const nextMoveDraggable: [ string, JSX.Element ] = squares[remoteMove.pieceMove.src];
+            newSquares[remoteMove.pieceMove.dest] = [nextMoveDraggable[0], nextMoveDraggable[1]];
+        }
+        // delete the square from the newSquares configuration from which the draggable came from
+        delete newSquares[remoteMove.pieceMove.src];
+
+        // castling moves rook along after the king is moved
+        if (remoteMove.pieceMove.notation === 'O-O') {
+            if (color === 'b') {
+                newSquares['f8'] = ['rb2', draggables['rb2']];
+                delete newSquares['h8'];
+            } else {
+                newSquares['f1'] = ['rw2', draggables['rw2']];
+                delete newSquares['h1'];
+            }
+        }
+
+        if (remoteMove.pieceMove.notation === 'O-O-O') {
+            if (color === 'b') {
+                newSquares['d8'] = ['rb1', draggables['rb1']];
+                delete newSquares['a8'];
+            } else {
+                newSquares['d1'] = ['rw1', draggables['rw1']];
+                delete newSquares['a1'];
+            }
+        }
+
+        // highlight the square where black is going to move to
+        setBlackMoveHighlight(remoteMove.pieceMove.dest);
+        
+        // set new squares configuration
+        setSquares(newSquares);
+
+        if (capturedDraggableId) {
+            // delete the captured draggable from the draggables 
+            delete draggables[capturedDraggableId];
+        }
+
+        // un-highlight the square where black is going to move to
+        setTimeout(() => {
+            setBlackMoveHighlight(``);
+            if (checkMate) {
+                alert('Checkmate');
+                checkMate = false;
+            }
+        }, checkMate? 500 : 1500);
+
+        // set that a king or rook has moved if one has moved
+        if (kingRookMovedRecord.hasOwnProperty(remoteMove.pieceMove.src)) {
+            kingRookMovedRecord[remoteMove.pieceMove.src][0] = true;
+        }
+
+        const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
+        setCastleFen(castleString);
+        // reset check variable in case there has been a check
+        // (getCastlingStatus examines the check variable to determine castling status)
+        check = false;
+
+        // Reset the remoteMove constant because a re-render will be caused by setSquares (above).
+        // The const squares is required in the useEffect dependency array or a Lint Warning occurs.
+        setRemoteMove({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
+
+    }, [remoteMove, squares]);
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
@@ -131,94 +220,6 @@ export default function Board(
     socket.on('remote_move', (move) => {
         setRemoteMove(move);
     });
-
-    function handleRemoteMove() {
-        // ignore first useEffect that executes handleRemoteMove()
-        if (remoteMove.opponent === '') { return; }
-
-        // update the GameClient
-        const r = gameClient.move(remoteMove.pieceMove.notation);
-        const color = r.move.postSquare.piece.side.name.charAt(0);
-
-        // see if there was a capture
-        let capturedDraggableId: string | null = null;
-        if (r.move.capturedPiece) {
-            // get the id of the captured draggable
-            capturedDraggableId = squares[remoteMove.pieceMove.dest][0];
-            // Update the list of captured pieces
-            capturedPieces.push(capturedDraggableId);
-        }
-
-        // Create a new setup configuration
-        const newSquares = {...squares};
-
-        if (promote) {
-            // if this is a promotion . . .
-            promote = false;
-            const pieceType = remoteMove.pieceMove.notation.charAt(2).toLowerCase();
-            const newDraggable: JSX.Element | undefined = getPrisonerExchange(remoteMove.color, pieceType);
-            if (newDraggable === undefined) { throw Error('Failure to exchange for promotion'); }
-            newSquares[remoteMove.pieceMove.dest] = [newDraggable.props.id, newDraggable];
-        } else {
-            // assign the active draggable identifier and its corresponding draggable object to the over.id
-            const nextMoveDraggable: [ string, JSX.Element ] = squares[remoteMove.pieceMove.src];
-            newSquares[remoteMove.pieceMove.dest] = [nextMoveDraggable[0], nextMoveDraggable[1]];
-        }
-        // delete the square from the newSquares configuration from which the draggable came from
-        delete newSquares[remoteMove.pieceMove.src];
-
-        // castling moves rook along after the king is moved
-        if (remoteMove.pieceMove.notation === 'O-O') {
-            if (color === 'b') {
-                newSquares['f8'] = ['rb2', draggables['rb2']];
-                delete newSquares['h8'];
-            } else {
-                newSquares['f1'] = ['rw2', draggables['rw2']];
-                delete newSquares['h1'];
-            }
-        }
-
-        if (remoteMove.pieceMove.notation === 'O-O-O') {
-            if (color === 'b') {
-                newSquares['d8'] = ['rb1', draggables['rb1']];
-                delete newSquares['a8'];
-            } else {
-                newSquares['d1'] = ['rw1', draggables['rw1']];
-                delete newSquares['a1'];
-            }
-        }
-
-        // highlight the square where black is going to move to
-        setBlackMoveHighlight(remoteMove.pieceMove.dest);
-        
-        // set new squares configuration
-        setSquares(newSquares);
-
-        if (capturedDraggableId) {
-            // delete the captured draggable from the draggables 
-            delete draggables[capturedDraggableId];
-        }
-
-        // un-highlight the square where black is going to move to
-        setTimeout(() => {
-            setBlackMoveHighlight(``);
-            if (checkMate) {
-                alert('Checkmate');
-                checkMate = false;
-            }
-        }, checkMate? 500 : 1500);
-
-        // set that a king or rook has moved if one has moved
-        if (kingRookMovedRecord.hasOwnProperty(remoteMove.pieceMove.src)) {
-            kingRookMovedRecord[remoteMove.pieceMove.src][0] = true;
-        }
-
-        const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
-        setCastleFen(castleString);
-        // reset check variable in case there has been a check
-        // (getCastlingStatus examines the check variable to determine castling status)
-        check = false;
-    }
 
     async function handleDragEnd({over} : {over: any}) {
       try {
