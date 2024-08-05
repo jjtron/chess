@@ -29,6 +29,7 @@ export default function Board(
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
     const [remoteMove, setRemoteMove] = useState({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
+    const [nextMoveColor, setNextMoveColor] = useState('White');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
@@ -127,6 +128,8 @@ export default function Board(
         // The const squares is required in the useEffect dependency array or a Lint Warning occurs.
         setRemoteMove({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
 
+        setNextMoveColor(color === 'w' ? 'Black' : 'White');
+
     }, [remoteMove, squares]);
 
     useEffect(() => {
@@ -210,6 +213,8 @@ export default function Board(
                 // reset check variable in case there has been a check
                 // (getCastlingStatus examines the check variable to determine castling status)
                 check = false;
+
+                setNextMoveColor('White');
 
             }).catch((e) => {
                 console.log(e);
@@ -301,6 +306,8 @@ export default function Board(
             setTimeout(() => { alert('Checkmate'); }, 500);
         }
         
+        setNextMoveColor(color === 'w' ? 'Black' : 'White');
+
         socket.emit('move', {
             opponent: opponent,
             pieceMove: pieceMove
@@ -326,6 +333,7 @@ export default function Board(
                 castleText={castleText}
                 blackMoveHighlight={blackMoveHighlight}
                 squares={squares}
+                nextMoveColor={nextMoveColor}
             />
         </DndContext>
     );
