@@ -13,7 +13,7 @@ export default function Squares({castleFen, castleText, blackMoveHighlight, squa
             <input type="checkbox" defaultChecked={opponentSelf} onClick={() => {setOpponentSelf(!opponentSelf)}}/>
         </div>
         */}
-        <div className="text-lg">{nextMoveColor}</div>
+        <div className="text-lg">{nextMoveColor}&apos;s turn to move</div>
         <div className='flex flex-row justify-between md:w-[640px] w-[320px]'>
             <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('q')})}>{castleText}</div>
             <div className={clsx('border rounded border-white text-xs px-1 mb-1', {'invisible' : !castleFen.includes('k')})}>{castleText}</div>
