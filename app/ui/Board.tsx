@@ -18,9 +18,10 @@ gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
 
 export default function Board(
-    { opponent, isOpponentSelf } : 
+    { opponent, registrationID, isOpponentSelf } :
     {
         opponent: string,
+        registrationID: string,
         isOpponentSelf: boolean
     }) 
 {
@@ -30,6 +31,7 @@ export default function Board(
     const [castleFen, setCastleFen] = useState('');
     const [remoteMove, setRemoteMove] = useState({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
     const [nextMoveColor, setNextMoveColor] = useState('White');
+    const [whoMovesNext, setWhoMovesNext] = useState('undetermined');
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
     const sensors = useSensors(mouseSensor, touchSensor);
@@ -130,6 +132,8 @@ export default function Board(
 
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 
+        setWhoMovesNext(registrationID);
+
     }, [remoteMove, squares]);
 
     useEffect(() => {
@@ -228,6 +232,9 @@ export default function Board(
 
     async function handleDragEnd({over} : {over: any}) {
       try {
+        if (!(whoMovesNext === registrationID || whoMovesNext === 'undetermined')) {
+            alert('It\'s not your move'); return;
+        }
 
         const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
         if (pieceMove === undefined) { throw Error('Failure to register piece move'); }
@@ -307,6 +314,8 @@ export default function Board(
         }
         
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
+
+        setWhoMovesNext(opponent);
 
         socket.emit('move', {
             opponent: opponent,
