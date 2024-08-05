@@ -234,7 +234,9 @@ export default function Board(
 
     async function handleDragEnd({over} : {over: any}) {
       try {
-        if (!(whoMovesNext === registrationID || whoMovesNext === 'undetermined')) {
+        if (!(whoMovesNext === registrationID ||
+              whoMovesNext === 'undetermined' ||
+              whoMovesNext === 'self')) {
             alert('It\'s not your move'); return;
         }
 
