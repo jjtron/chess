@@ -50,7 +50,7 @@ export default function Dnd() {
   }
 
   if (showboard) {
-    return <Board opponent={opponent} isOpponentSelf={true} />
+    return <Board opponent={opponent} registrationID={registrationID} isOpponentSelf={true} />
   } else {
     return (
       <div className='p-2'>
@@ -63,7 +63,7 @@ export default function Dnd() {
         </div>
         <div className={clsx('p-2', {'hidden' : !registrationID })}>
           <p>Paste Opponent&apos;s Registration ID here, and click Handshake to get started.</p>
-          <input type='text' value={opponent} onChange={handleSetOpponent} className='px-1 text-black' />
+          <input type='text' size={25} value={opponent} onChange={handleSetOpponent} className='px-1 text-black' />
         </div>
         <div className={clsx('flex flex-row p-2', {'hidden' : !registrationID })}>
           <button onClick={handleHandshake}
