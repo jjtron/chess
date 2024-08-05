@@ -134,7 +134,7 @@ export default function Board(
 
         setWhoMovesNext(registrationID);
 
-    }, [remoteMove, squares]);
+    }, [remoteMove, squares, registrationID]);
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
