@@ -53,7 +53,7 @@ export default function Dnd() {
     return <Board adversaryID={adversaryID} registrationID={registrationID} isOpponentSelf={true} />
   } else {
     return (
-      <div className='p-2'>
+      <div className='p-2 min-h-screen'>
         <div className='p-2'>
           <p>Your registrationID is
             <span className={clsx('pl-2', {'hidden' : !!registrationID })} >. . .</span>
