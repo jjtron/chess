@@ -18,9 +18,9 @@ gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
 
 export default function Board(
-    { opponent, registrationID, isOpponentSelf } :
+    { XYZXYZXYZ, registrationID, isOpponentSelf } :
     {
-        opponent: string,
+        XYZXYZXYZ: string,
         registrationID: string,
         isOpponentSelf: boolean
     }) 
@@ -29,7 +29,7 @@ export default function Board(
     const [squares, setSquares] = useState(setup);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
     const [castleFen, setCastleFen] = useState('');
-    const [remoteMove, setRemoteMove] = useState({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
+    const [remoteMove, setRemoteMove] = useState({ XYZXYZXYZ: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
     const [nextMoveColor, setNextMoveColor] = useState('White');
     const [whoMovesNext, setWhoMovesNext] = useState('undetermined');
     const mouseSensor = useSensor(MouseSensor);
@@ -41,7 +41,7 @@ export default function Board(
 
     useEffect(() => {
         // ignore first useEffect that executes handleRemoteMove()
-        if (remoteMove.opponent === '') { return; }
+        if (remoteMove.XYZXYZXYZ === '') { return; }
 
         // update the GameClient
         const r = gameClient.move(remoteMove.pieceMove.notation);
@@ -128,7 +128,7 @@ export default function Board(
 
         // Reset the remoteMove constant because a re-render will be caused by setSquares (above).
         // The const squares is required in the useEffect dependency array or a Lint Warning occurs.
-        setRemoteMove({ opponent: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
+        setRemoteMove({ XYZXYZXYZ: '', pieceMove: {dest: '', src: '', notation: '', }, color: ''});
 
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 
@@ -219,6 +219,8 @@ export default function Board(
                 check = false;
 
                 setNextMoveColor('White');
+
+                setWhoMovesNext(registrationID);
 
             }).catch((e) => {
                 console.log(e);
@@ -315,10 +317,10 @@ export default function Board(
         
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 
-        setWhoMovesNext(opponent);
+        setWhoMovesNext(XYZXYZXYZ);
 
         socket.emit('move', {
-            opponent: opponent,
+            XYZXYZXYZ: XYZXYZXYZ,
             pieceMove: pieceMove
         });
 

@@ -6,7 +6,7 @@ import clsx from 'clsx';
 
 export default function Dnd() {
   const [showboard, setShowboard] = useState(false);
-  const [opponent, setOpponent] = useState('');
+  const [XYZXYZXYZ, setOpponent] = useState('');
   const [registrationID, setRegistrationID] = useState('');
   const [message, setMessage] = useState('');
   const [messageResponse, setMessageResponse] = useState('');
@@ -38,7 +38,7 @@ export default function Dnd() {
   }, [socket]);
 
   function handleHandshake() {
-    socket.emit('hand_shake', opponent);
+    socket.emit('hand_shake', XYZXYZXYZ);
   }
 
   function handleSetOpponent(e: any) {
@@ -50,7 +50,7 @@ export default function Dnd() {
   }
 
   if (showboard) {
-    return <Board opponent={opponent} registrationID={registrationID} isOpponentSelf={true} />
+    return <Board XYZXYZXYZ={XYZXYZXYZ} registrationID={registrationID} isOpponentSelf={true} />
   } else {
     return (
       <div className='p-2'>
@@ -63,23 +63,23 @@ export default function Dnd() {
         </div>
         <div className={clsx('p-2', {'hidden' : !registrationID })}>
           <p>Paste Opponent&apos;s Registration ID here, and click Handshake to get started.</p>
-          <input type='text' size={25} value={opponent} onChange={handleSetOpponent} className='px-1 text-black' />
+          <input type='text' size={25} value={XYZXYZXYZ} onChange={handleSetOpponent} className='px-1 text-black' />
         </div>
         <div className={clsx('flex flex-row p-2', {'hidden' : !registrationID })}>
           <button onClick={handleHandshake}
-                  disabled={!opponent}
+                  disabled={!XYZXYZXYZ}
                   className={clsx('px-2 bg-slate-300 border border-white rounded-md text-black',
-                            { 'text-black' :  !!opponent, 'text-slate-600' : !opponent } )}>Handshake
+                            { 'text-black' :  !!XYZXYZXYZ, 'text-slate-600' : !XYZXYZXYZ } )}>Handshake
           </button>
           <p className={clsx('px-2', {'hidden' : !messageResponse })}>{messageResponse}</p>
         </div>
         <div className={clsx('p-2', {'hidden' : !message })}>
-          <p>Handshake message from opponent with id: {message}</p>
+          <p>Handshake message from XYZXYZXYZ with id: {message}</p>
         </div>
         <div className={clsx('p-2', {'hidden' : !message || !messageResponse })}>
           <button onClick={handleShowboard}
                   className={clsx('px-2 bg-slate-300 border border-white rounded-md text-black',
-                            { 'text-black' :  !!opponent, 'text-slate-600' : !opponent } )}>Play
+                            { 'text-black' :  !!XYZXYZXYZ, 'text-slate-600' : !XYZXYZXYZ } )}>Play
           </button>
         </div>
       </div>

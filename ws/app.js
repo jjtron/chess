@@ -21,8 +21,8 @@ io.on('connection', (socket) => {
     socket.emit('registrationID', socket.id);
   });
 
-  socket.on('hand_shake', (opponent) => {
-    io.to(opponent).emit('message_to_opponent',
+  socket.on('hand_shake', (XYZXYZXYZ) => {
+    io.to(XYZXYZXYZ).emit('message_to_opponent',
         { 
           message: socket.id,
           from: socket.id
@@ -30,12 +30,12 @@ io.on('connection', (socket) => {
       )
   });
 
-  socket.on('hand_shake_response', (opponent) => {
-    io.to(opponent).emit('response_from_opponent', 'Handshake with opponent, ' + socket.id + ', success.');
+  socket.on('hand_shake_response', (XYZXYZXYZ) => {
+    io.to(XYZXYZXYZ).emit('response_from_opponent', 'Handshake with opponent, ' + socket.id + ', success.');
   })
 
   socket.on('move', (move) => {
-    io.to(move.opponent).emit('remote_move', move);
+    io.to(move.XYZXYZXYZ).emit('remote_move', move);
   });
 
 // BEGIN: for test only when using the 'index.html'
