@@ -16,6 +16,8 @@ const io = require("socket.io")(httpServer, {
     }
 });
 
+const boardOpened = [];
+
 io.on('connection', (socket) => {
   socket.on('register', () => {
     socket.emit('registrationID', socket.id);
@@ -26,7 +28,7 @@ io.on('connection', (socket) => {
       io.to(adversaryID).emit('hand_shake_forward',
         { 
           content: 'Handshake message from opponent with id ' + socket.id,
-          response: 'Handshake with opponent, ' + adversaryID + ', success.',
+          response: 'Handshake success.',
           from_id: socket.id
         }
       )
@@ -41,6 +43,19 @@ io.on('connection', (socket) => {
 
   socket.on('move', (move) => {
     io.to(move.adversaryID).emit('remote_move', move);
+  });
+
+  socket.on('open_board', (adversaryID) => {
+    const isBoardOpenedByAdersary = boardOpened.indexOf(adversaryID) !== -1;
+    const isBoardOpenedBySelf = boardOpened.indexOf(socket.id) !== -1;
+    if (!isBoardOpenedBySelf) {
+      boardOpened.push(socket.id);
+    }
+    io.to(socket.id).emit('board_open_by_adversary', isBoardOpenedByAdersary);
+    if (isBoardOpenedByAdersary) {
+      io.to(adversaryID).emit('board_open_by_both', true);
+      io.to(socket.id).emit('board_open_by_both', true);
+    }
   });
 
 // BEGIN: for test only when using the 'index.html'
