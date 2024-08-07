@@ -22,16 +22,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('hand_shake', (adversaryID) => {
-    io.to(adversaryID).emit('message_to_opponent',
+    io.to(adversaryID).emit('hand_shake_forward',
         { 
-          message: socket.id,
-          from: socket.id
+          content: 'Handshake message from opponent with id ' + socket.id,
+          response: 'Handshake with opponent, ' + adversaryID + ', success.',
+          from_id: socket.id
         }
-      )
+    )
   });
 
-  socket.on('hand_shake_response', (adversaryID) => {
-    io.to(adversaryID).emit('response_from_opponent', 'Handshake with opponent, ' + socket.id + ', success.');
+  socket.on('hand_shake_back', (message) => {
+    io.to(message.from_id).emit('response_from_opponent', message.response);
   })
 
   socket.on('move', (move) => {

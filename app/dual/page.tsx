@@ -12,9 +12,9 @@ export default function Dnd() {
   const [messageResponse, setMessageResponse] = useState('');
   const socket = useWebSocketContext();
 
-  socket.on('message_to_opponent', function(message: { message: string, from: string}) {
-    setMessage(message.message);
-    socket.emit('hand_shake_response', message.from )
+  socket.on('hand_shake_forward', function(message: { content: string, response: string, from_id: string}) {
+    setMessage(message.content);
+    socket.emit('hand_shake_back', message )
   });
 
   socket.on('response_from_opponent', function (messageResponse) {
@@ -77,7 +77,7 @@ export default function Dnd() {
           </p>
           <input type='text' size={25} value={adversaryID} onChange={handleSetOpponent} className='px-1 text-black' />
         </div>
-        <div>
+        <div className='py-2'>
           <p className={clsx('pl-2', {'hidden' : !adversaryID })} >Click Handshake to get started.</p>
           <div className={clsx('flex flex-row pl-2', {'hidden' : !registrationID })}>
             <button onClick={handleHandshake}
@@ -89,7 +89,7 @@ export default function Dnd() {
           </div>
         </div>
         <div className={clsx('p-2', {'hidden' : !message })}>
-          <p>Handshake message from opponent with id: {message}</p>
+          <p>{message}</p>
         </div>
         <div className={clsx('p-2', {'hidden' : !message || !messageResponse })}>
           <button onClick={handleShowboard}
