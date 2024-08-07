@@ -1,5 +1,5 @@
 'use client'
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useReducer} from 'react';
 import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
 import {draggables, setup, capturedPieces, kingRookMovedRecord} from '../lib/pieces';
 import chess from 'chess';
@@ -17,6 +17,17 @@ export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
 
+const initIsBoardOpenByBoth: boolean =  false;
+const reducerOne = (state: any, action: any) => {
+    if (action) {
+        state = true;
+        return state;
+    } else {
+        state = false;
+        return state;
+    }
+};
+
 export default function Board(
     { adversaryID, registrationID, isOpponentSelf } :
     {
@@ -25,6 +36,9 @@ export default function Board(
         isOpponentSelf: boolean
     }) 
 {
+    const [isBoardOpenByBoth, dispatchOne] = useReducer(reducerOne, initIsBoardOpenByBoth);
+    const handleBoth = () => { dispatchOne(true); }
+
     const [activeDraggable, setActiveDraggable] = useState('');
     const [squares, setSquares] = useState(setup);
     const [blackMoveHighlight, setBlackMoveHighlight] = useState('');
@@ -39,6 +53,20 @@ export default function Board(
     const opponentSelf = isOpponentSelf;
     const socket = useWebSocketContext();
 
+    useEffect(() => {
+        if (isBoardOpenByBoth === true) {return;}
+        new Promise((resolve, reject) => {
+            socket.emit('open_board', adversaryID);
+            socket.on('board_open_by_both', (response) => {
+                response ? resolve(true) : reject();
+            });
+        }).then(() => {
+            handleBoth();
+        }).catch(() => {
+            console.log('something went wrong');
+        });
+    }, [isBoardOpenByBoth, adversaryID, socket])
+    
     useEffect(() => {
         // ignore first useEffect that executes handleRemoteMove()
         if (remoteMove.adversaryID === '') { return; }
@@ -237,7 +265,12 @@ export default function Board(
         if (!(whoMovesNext === registrationID ||
               whoMovesNext === 'undetermined' ||
               whoMovesNext === 'self')) {
-            alert('It\'s not your move'); return;
+            alert('It\'s not your move');
+            return;
+        }
+        if (!isBoardOpenByBoth) {
+            alert('Your opponent hasn\'t opened the board yet');
+            return;
         }
 
         const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
@@ -336,6 +369,7 @@ export default function Board(
     }
 
     return (
+        
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
                     onDragEnd={handleDragEnd}
                     onDragStart={handleDragStart}
@@ -347,6 +381,7 @@ export default function Board(
                 blackMoveHighlight={blackMoveHighlight}
                 squares={squares}
                 nextMoveColor={nextMoveColor}
+                isBoardOpenByBoth={isBoardOpenByBoth}
             />
         </DndContext>
     );
