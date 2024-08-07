@@ -57,11 +57,18 @@ export default function Dnd() {
         <div className='basis-1/3'></div>
         <div className='min-w-[320px] sm:min-w-[420px]'>
         <div className='p-2'>
-          <p>Your registration ID is
+          {/* SHOW THIS IF THERE ARE NO DASHES IN REGISTRATION ID*/}
+          <div className={clsx({'hidden' : !(registrationID.split('-').length === 1) })} >Your registration ID is
             <span className={clsx('pl-2', {'hidden' : !!registrationID })} >. . .</span>
             <span className={clsx('pl-2', {'hidden' : !registrationID })} >:</span>
             <span className='pl-1 text-lime-500'>&nbsp;{registrationID}</span>
-          </p>
+          </div>
+          {/* SHOW THIS IF THERE ARE DASHES IN REGITRATION ID*/}
+          <div className={clsx({'hidden' : registrationID.split('-').length === 1 })} >Your registration ID
+              <p className={clsx({'hidden' : !registrationID })} >is :
+                <span className='pl-1 text-lime-500'>&nbsp;{registrationID}</span>
+              </p>
+          </div>
           <p className={clsx({'hidden' : !registrationID })}>E-mail or text it to your opoonent.</p>
         </div>
         <div className={clsx('p-2', {'hidden' : !registrationID })}>
