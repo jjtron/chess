@@ -77,16 +77,16 @@ export default function Dnd() {
           </p>
           <input type='text' size={25} value={adversaryID} onChange={handleSetOpponent} className='px-1 text-black' />
         </div>
-        <div className='py-2'>
-          <p className={clsx('pl-2', {'hidden' : !adversaryID })} >Click Handshake to get started.</p>
-          <div className={clsx('flex flex-row pl-2', {'hidden' : !registrationID })}>
+        <div className='py-2 min-h-[100px]' >
+          <p className={clsx('pl-2', {'invisible' : !adversaryID })} >Click Handshake to get started.</p>
+          <div className={clsx('pl-2', {'invisible' : !registrationID })}>
             <button onClick={handleHandshake}
                     disabled={!adversaryID}
                     className={clsx('px-2 bg-slate-300 border border-white rounded-md text-black',
-                              { 'hidden' : !adversaryID })}>Handshake
+                              { 'invisible' : !adversaryID })}>Handshake
             </button>
-            <p className={clsx('px-2', {'hidden' : !messageResponse })}>{messageResponse}</p>
           </div>
+          <p className={clsx('px-2', {'invisible' : !messageResponse })}>{messageResponse}</p>
         </div>
         <div className={clsx('p-2', {'hidden' : !message })}>
           <p>{message}</p>
