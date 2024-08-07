@@ -22,13 +22,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('hand_shake', (adversaryID) => {
-    io.to(adversaryID).emit('hand_shake_forward',
+    if (adversaryID !== socket.id) {
+      io.to(adversaryID).emit('hand_shake_forward',
         { 
           content: 'Handshake message from opponent with id ' + socket.id,
           response: 'Handshake with opponent, ' + adversaryID + ', success.',
           from_id: socket.id
         }
-    )
+      )
+    } else {
+      io.to(socket.id).emit('response_from_opponent', 'ERROR: use your opponent\'s id, not yours');
+    }
   });
 
   socket.on('hand_shake_back', (message) => {
