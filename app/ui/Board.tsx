@@ -7,12 +7,12 @@ import {getBlackMove, getPieceMove, getPrisonerExchange,
         getBlackAiMove, getCastlingStatus} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import Squares from './Squares';
+import Alert from '../Alert';
+import { useAlertContext } from "../alertContext";
 
 export const gameClient = chess.create({ PGN : true });
 export var checkMate: boolean = false;
 gameClient.on('checkmate', () => { checkMate = true; });
-export var check: boolean = false;
-gameClient.on('check', () => { check = true; });
 export var promote: boolean = false;
 gameClient.on('promote', () => { promote = true; });
 import { useWebSocketContext } from "../webSocketContext";
@@ -52,6 +52,7 @@ export default function Board(
     const castleText = 'To castle, move King first, rook will follow';
     const opponentSelf = isOpponentSelf;
     const socket = useWebSocketContext();
+    const { onOpen } = useAlertContext();
 
     useEffect(() => {
         if (isBoardOpenByBoth === true) {return;}
@@ -138,10 +139,14 @@ export default function Board(
         setTimeout(() => {
             setBlackMoveHighlight(``);
             if (checkMate) {
-                alert('Checkmate');
+                onOpen('checkmate', 'Better luck next time');
                 checkMate = false;
             }
-        }, checkMate? 500 : 1500);
+            if (gameClient.getStatus().isCheck) {
+                onOpen('check', 'You are under attack!');
+                gameClient.getStatus().isCheck = false;
+            }
+        }, 500);
 
         // set that a king or rook has moved if one has moved
         if (kingRookMovedRecord.hasOwnProperty(remoteMove.pieceMove.src)) {
@@ -150,9 +155,8 @@ export default function Board(
 
         const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
         setCastleFen(castleString);
-        // reset check variable in case there has been a check
+
         // (getCastlingStatus examines the check variable to determine castling status)
-        check = false;
 
         // Reset the remoteMove constant because a re-render will be caused by setSquares (above).
         // The const squares is required in the useEffect dependency array or a Lint Warning occurs.
@@ -230,10 +234,14 @@ export default function Board(
                 setTimeout(() => {
                     setBlackMoveHighlight(``);
                     if (checkMate) {
-                        alert('Checkmate');
+                        onOpen('checkmate', 'Better luck next time');
                         checkMate = false;
                     }
-                }, checkMate? 500 : 1500);
+                    if (gameClient.getStatus().isCheck) {
+                        onOpen('check', 'You are under attack!');
+                        gameClient.getStatus().isCheck = false;
+                    }
+                }, 500);
 
                 // set that a king or rook has moved if one has moved
                 if (kingRookMovedRecord.hasOwnProperty(blackMove.src)) {
@@ -242,9 +250,8 @@ export default function Board(
 
                 const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
                 setCastleFen(castleString);
-                // reset check variable in case there has been a check
+
                 // (getCastlingStatus examines the check variable to determine castling status)
-                check = false;
 
                 setNextMoveColor('White');
 
@@ -265,16 +272,22 @@ export default function Board(
         if (!(whoMovesNext === registrationID ||
               whoMovesNext === 'undetermined' ||
               whoMovesNext === 'self')) {
-            alert('It\'s not your move');
+            onOpen('error', 'It\s not your turn');
             return;
         }
         if (!(adversaryID === 'self' || adversaryID === 'machine') && !isBoardOpenByBoth) {
-            alert('Your opponent hasn\'t opened the board yet');
+            onOpen('error', 'Your opponent hasn\'t opened the board yet');
             return;
         }
 
         const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
-        if (pieceMove === undefined) { throw Error('Failure to register piece move'); }
+
+        if (pieceMove === undefined) {
+            onOpen('error', `'Invalid move'. Although the error is undetermined, 
+                             it is most likely that you are moving out of 
+                             turn or trying to move a peice of the wrong color`);
+            return;
+        }
 
         // update the GameClient
         const r = gameClient.move(pieceMove.notation);
@@ -342,12 +355,16 @@ export default function Board(
 
         const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, color === 'w' ? 'b' : 'w');
         setCastleFen(castleString);
-        // reset check variable in case there has been a check
+
         // (getCastlingStatus examines the check variable to determine castling status)
-        check = false;
 
         if (checkMate) {
-            setTimeout(() => { alert('Checkmate'); }, 500);
+            onOpen('checkmate', 'Better luck next time');
+            checkMate = false;
+        }
+        if (gameClient.getStatus().isCheck) {
+            onOpen('check', 'You are under attack!');
+            gameClient.getStatus().isCheck = false;
         }
         
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
@@ -369,7 +386,8 @@ export default function Board(
     }
 
     return (
-        
+        <>
+        <Alert />
         <DndContext id="42721f6b-df8b-45e5-aa5e-0d6a830e2032"
                     onDragEnd={handleDragEnd}
                     onDragStart={handleDragStart}
@@ -385,5 +403,6 @@ export default function Board(
                 overRideDuality={adversaryID === 'self' || adversaryID === 'machine'}
             />
         </DndContext>
+        </>
     );
 }

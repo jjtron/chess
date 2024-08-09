@@ -4,7 +4,6 @@ import {AlgebraicGameClient} from 'chess';
 import {Draggable} from '../ui/Draggable';
 import Image from 'next/image';
 import { stockfish } from '../lib/stockfish';
-import { check } from '../ui/Board';
 
 export const NEXT_PUBLIC_WSENDPOINT = process.env.NEXT_PUBLIC_WSENDPOINT;
 
@@ -50,7 +49,7 @@ export function getCastlingStatus(
 
         // test condition 3
         // add negated castling-options for a checked condition
-        if (check) {
+        if (gameClient.getStatus().isCheck) {
             if (color === 'w') {
                 negatedCastlingOptions.push('K');
                 negatedCastlingOptions.push('Q');
