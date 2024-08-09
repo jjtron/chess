@@ -268,7 +268,7 @@ export default function Board(
             alert('It\'s not your move');
             return;
         }
-        if (!isBoardOpenByBoth) {
+        if (!(adversaryID === 'self' || adversaryID === 'machine') && !isBoardOpenByBoth) {
             alert('Your opponent hasn\'t opened the board yet');
             return;
         }
@@ -382,6 +382,7 @@ export default function Board(
                 squares={squares}
                 nextMoveColor={nextMoveColor}
                 isBoardOpenByBoth={isBoardOpenByBoth}
+                overRideDuality={adversaryID === 'self' || adversaryID === 'machine'}
             />
         </DndContext>
     );
