@@ -169,7 +169,10 @@ export default function Board(
 
     useEffect(() => {
         const nextMoves = gameClient.getStatus().notatedMoves;
-        if (!opponentSelf && !checkMate && Object.keys(nextMoves).length > 0 && nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black') {
+        if (!opponentSelf && adversaryID === 'machine' && !checkMate && 
+            Object.keys(nextMoves).length > 0 && 
+            nextMoves[Object.keys(nextMoves)[0]].src.piece.side.name === 'black')
+        {
             getBlackAiMove(gameClient, castleFen).then((blackAiMove) => {
                 // get destination and source squares using the blackAiMove to pull
                 // from the gameClient set of next-moves-possible
@@ -356,14 +359,16 @@ export default function Board(
 
         // (getCastlingStatus examines the check variable to determine castling status)
 
-        if (checkMate) {
-            onOpen('checkmate', 'Better luck next time');
-            checkMate = false;
-        }
-        if (gameClient.getStatus().isCheck) {
-            onOpen('check', 'You are under attack!');
-            gameClient.getStatus().isCheck = false;
-        }
+        if (isOpponentSelf) {
+            if (checkMate) {
+                onOpen('checkmate', 'Better luck next time');
+                checkMate = false;
+            }
+            if (gameClient.getStatus().isCheck) {
+                onOpen('check', 'You are under attack!');
+                gameClient.getStatus().isCheck = false;
+            }
+        } 
         
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 

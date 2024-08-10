@@ -50,7 +50,7 @@ export default function Dnd() {
   }
 
   if (showboard) {
-    return <Board adversaryID={adversaryID} registrationID={registrationID} isOpponentSelf={true} />
+    return <Board adversaryID={adversaryID} registrationID={registrationID} isOpponentSelf={false} />
   } else {
     return (
       <div className='p-2 min-h-screen flex flex-row'>
