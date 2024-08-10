@@ -24,7 +24,16 @@ function Alert() {
       onClose={onClose}
     >
       <AlertDialogOverlay>
-        <AlertDialogContent py={4} color={'black'} backgroundColor={(() => {
+        <AlertDialogContent py={4} 
+            color={(() => {
+              if (isCheck) { return 'black'} 
+              else if
+                 (isCheckmate) { return 'white'}
+              else {
+                return 'black'
+              }
+            })()} 
+            backgroundColor={(() => {
               if (isCheck) { return 'yellow'} 
               else if
                  (isCheckmate) { return 'blue'}
