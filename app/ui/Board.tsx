@@ -376,6 +376,13 @@ export default function Board(
             }
         }
 
+        if (isOpponentSelf) {
+            if (gameClient.getStatus().isCheck) {
+                onOpen('check', 'Good move; your alter-ego should be afraid!');
+                gameClient.getStatus().isCheck = false;
+            }
+        }
+
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 
         setWhoMovesNext(adversaryID);
