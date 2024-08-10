@@ -134,7 +134,10 @@ export default function Board(
             delete draggables[capturedDraggableId];
         }
 
-        // un-highlight the square where black is going to move to
+        // un-highlight the square where opponent is going to move to
+        // NOTE: 'setBlackMoveHighlight' is used to serve the dual mode
+        //       for both black and white remote moving; 
+        //       both white and black utilize the algorithm
         setTimeout(() => {
             setBlackMoveHighlight(``);
             if (checkMate) {
@@ -361,15 +364,18 @@ export default function Board(
 
         if (isOpponentSelf) {
             if (checkMate) {
-                onOpen('checkmate', 'Better luck next time');
+                onOpen('checkmate', 'You have vanquished your most formidable foe!');
                 checkMate = false;
             }
+        }
+
+        if (adversaryID === 'machine') {
             if (gameClient.getStatus().isCheck) {
-                onOpen('check', 'You are under attack!');
+                onOpen('check', 'Your opponent seems unfraid!');
                 gameClient.getStatus().isCheck = false;
             }
-        } 
-        
+        }
+
         setNextMoveColor(color === 'w' ? 'Black' : 'White');
 
         setWhoMovesNext(adversaryID);
