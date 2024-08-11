@@ -1,7 +1,7 @@
 import {createContext, useContext, useState} from "react";
 
 const AlertContext = createContext({
-  onOpen: (type: string, message: string) => {},
+  onOpen: (type: string, message: any) => {},
   onClose: () => {}
 });
 
@@ -18,7 +18,7 @@ export const AlertProvider = ({ children } : any ) => {
     <AlertContext.Provider
       value={{
         ...state,
-        onOpen: (type: string, message: string) => setState({ isOpen: true, type, message }),
+        onOpen: (type: string, message: any) => setState({ isOpen: true, type, message }),
         onClose: () => setState({ isOpen: false, type: '', message: '' }),
       }}
     >

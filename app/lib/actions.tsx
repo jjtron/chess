@@ -7,94 +7,54 @@ import { stockfish } from '../lib/stockfish';
 
 export const NEXT_PUBLIC_WSENDPOINT = process.env.NEXT_PUBLIC_WSENDPOINT;
 
-export function getCastlingStatus(
-    gameClient: AlgebraicGameClient,
-    kingRookMovedRecord: any,
-    color: string
-) : string {
+export function getCastleStatus(gameClient: any, squares: BoardState, kingRookMovedRecord: any, color: string) {
     /*
-        1 Neither the king nor the rook has previously moved.
-        2 There are no pieces between the king and the rook.
-        3 The king is not currently in check.
-        4 The king does not pass through or finish on a square that is attacked by an enemy piece.
+        1 There are no pieces between the king and the rook.
+        2 Neither the king nor the rook has previously moved.
+        3 The king does not pass through or finish on a square that is attacked by an enemy piece.
+          (not tested for in this algorithm)
+        4 The king is not currently in check. (not tested for in this algorithm)
     */
-    try {
-        // test condition 2
-        const possibilities: any = {
-            K: [61,62],
-            Q: [57,58,59],
-            k: [5,6],
-            q: [1,2,3]
-        }
-        const boardState = gameClient.getStatus().board.squares;
-        const fenSortedBoardState = getFenSortedBoardState(boardState);
-        const possibilityStatus = Object.keys(possibilities).map((key: string) => {
-            return possibilities[key].map((boardArrayElement: number) => {
-                return fenSortedBoardState[boardArrayElement].piece === null;
-            });
-        }).map((squaresGroupStatus) => {
-            return squaresGroupStatus.every((empty: boolean) => empty === true );
-        });
-        let FENarray = Object.keys(possibilities).filter((key: string, index: number) => {
-            return possibilityStatus[index] === true;
-        });
-
-        // test condition 1
-        // create list of negated castling-options by examining the kingRookMovedRecord variable
-        const negatedCastlingOptions: string[] = Object.keys(kingRookMovedRecord).filter((moveSquare) => {
-            return kingRookMovedRecord[moveSquare][0] === true;
-        }).map((moveSquare) => {
-            return kingRookMovedRecord[moveSquare][1];
-        }).join('').split('');
-
-        // test condition 3
-        // add negated castling-options for a checked condition
-        if (gameClient.getStatus().isCheck) {
-            if (color === 'w') {
-                negatedCastlingOptions.push('K');
-                negatedCastlingOptions.push('Q');
-            } else {
-                negatedCastlingOptions.push('k');
-                negatedCastlingOptions.push('q');
-            }
-        }
-
-        // test condition 4
-        // Scan through the notated moves available to find negating condition(s)
-        // to add to the negatedCastlingOptions array
-        // A negated condition will manifest as not having a move for
-        // the king into its castle postion
-        const nextMoves = gameClient.getStatus().notatedMoves;
-        const castleOptionVsKingsDest: any = {
-            Q: 'c1',
-            K: 'g1',
-            q: 'c8',
-            k: 'g8'
-        };
-        const nextMovesKeys = Object.keys(nextMoves);
-        FENarray.forEach((castleOption) => {
-            const destFound = nextMovesKeys.find((move) => {
-                return nextMoves[move].src.piece.type === 'king' &&
-                    nextMoves[move].dest.file === castleOptionVsKingsDest[castleOption].charAt(0) &&
-                    nextMoves[move].dest.rank === Number(castleOptionVsKingsDest[castleOption].charAt(1))
-            });
-            if (typeof destFound === 'undefined') {
-                negatedCastlingOptions.push(castleOption);
-            }
-        });
-
-        // remove the negated castling options from the FEN array
-        negatedCastlingOptions.forEach((negated) => {
-            const index = FENarray.indexOf(negated);
-            if (index > -1) {
-                FENarray.splice(index, 1);
-            }
-        });
-        return FENarray.join('');
-    } catch (e) {
-        return '';
+   // test condition 1
+    let FENarray: string[] = [];
+    const squareGroups: any = {
+        Q: ['b1','c1','d1'],
+        K: ['f1','g1'],
+        q: ['b8','c8','d8'],
+        k: ['f8','g8']
     }
+    Object.keys(squareGroups).forEach((group: string) => {
+        if (Object.keys(squares).filter((square: string) => {
+            if (squareGroups[group].length === 3) {
+                return square === squareGroups[group][0] || square === squareGroups[group][1] || square === squareGroups[group][2];
+            } else {
+                return square === squareGroups[group][0] || square === squareGroups[group][1];
+            }
+        }).length === 0) {
+            FENarray.push(group);
+        }
+    });
+    /* REMOVED (but saved for posterity)
+        because the gameClient itself will prevent castling under this condition
+            // test condition 2
+            // create list of negated castling-options by examining the kingRookMovedRecord variable
+            const negatedCastlingOptions: string[] = Object.keys(kingRookMovedRecord).filter((moveSquare) => {
+                return kingRookMovedRecord[moveSquare][0] === true;
+            }).map((moveSquare) => {
+                return kingRookMovedRecord[moveSquare][1];
+            }).join('').split('');
+            // remove the negated castling-options from the FENarray
+            negatedCastlingOptions.forEach((negated) => {
+                const index = FENarray.indexOf(negated);
+                if (index > -1) {
+                    FENarray.splice(index, 1);
+                }
+            });
+            console.log(FENarray)
+    */
+    return FENarray;
 }
+
 export function getBlackMove(
     gameClient: AlgebraicGameClient,
     blackAiMove: string

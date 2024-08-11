@@ -1,10 +1,10 @@
 'use client'
-import React, {useState, useEffect, useReducer} from 'react';
+import React, {useState, useEffect, useReducer, useRef} from 'react';
 import {DndContext, useSensors, useSensor, MouseSensor, TouchSensor,} from '@dnd-kit/core';
 import {draggables, setup, capturedPieces, kingRookMovedRecord} from '../lib/pieces';
 import chess from 'chess';
 import {getBlackMove, getPieceMove, getPrisonerExchange,
-        getBlackAiMove, getCastlingStatus} from '../lib/actions';
+        getBlackAiMove, getCastleStatus} from '../lib/actions';
 import {PieceMove} from '../lib/interfaces';
 import Squares from './Squares';
 import Alert from '../Alert';
@@ -53,6 +53,8 @@ export default function Board(
     const opponentSelf = isOpponentSelf;
     const socket = useWebSocketContext();
     const { onOpen } = useAlertContext();
+    const castleAlertWhite = useRef(false);
+    const castleAlertBlack = useRef(false);
 
     useEffect(() => {
         if (isBoardOpenByBoth === true) {return;}
@@ -125,7 +127,7 @@ export default function Board(
 
         // highlight the square where black is going to move to
         setBlackMoveHighlight(remoteMove.pieceMove.dest);
-        
+
         // set new squares configuration
         setSquares(newSquares);
 
@@ -154,11 +156,6 @@ export default function Board(
         if (kingRookMovedRecord.hasOwnProperty(remoteMove.pieceMove.src)) {
             kingRookMovedRecord[remoteMove.pieceMove.src][0] = true;
         }
-
-        const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
-        setCastleFen(castleString);
-
-        // (getCastlingStatus examines the check variable to determine castling status)
 
         // Reset the remoteMove constant because a re-render will be caused by setSquares (above).
         // The const squares is required in the useEffect dependency array or a Lint Warning occurs.
@@ -252,11 +249,6 @@ export default function Board(
                     kingRookMovedRecord[blackMove.src][0] = true;
                 }
 
-                const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, 'w');
-                setCastleFen(castleString);
-
-                // (getCastlingStatus examines the check variable to determine castling status)
-
                 setNextMoveColor('White');
 
                 setWhoMovesNext(registrationID);
@@ -287,7 +279,7 @@ export default function Board(
         const pieceMove: PieceMove | undefined = getPieceMove(squares, activeDraggable, gameClient, over.id);
 
         if (pieceMove === undefined) {
-            onOpen('error', `'Invalid move'. Although the error is undetermined, 
+            onOpen('error', `'Invalid move'.\n Although the error is undetermined,
                              it is most likely that you are moving out of 
                              turn or trying to move a peice of the wrong color`);
             return;
@@ -356,11 +348,24 @@ export default function Board(
         if (kingRookMovedRecord.hasOwnProperty(pieceMove.src)) {
             kingRookMovedRecord[pieceMove.src][0] = true;
         }
-
-        const castleString = getCastlingStatus(gameClient, kingRookMovedRecord, color === 'w' ? 'b' : 'w');
-        setCastleFen(castleString);
-
-        // (getCastlingStatus examines the check variable to determine castling status)
+        const castleFEN = getCastleStatus(gameClient, newSquares, kingRookMovedRecord, color);
+        const castlinAlert: string[] = [
+            'To castle, move your King and the Rook will follow.',
+            '----------------------------------------------------',
+            'Castling permitted if ...',
+            '* There are no pieces between the king and the rook.',
+            '* Neither the king nor the rook has previously moved.',
+            '* The king does not pass through or finish on a square that is attacked by an enemy piece.',
+            '* The king is not currently in check.'
+        ]
+        if ( color === 'w' && (castleFEN.indexOf('Q') > -1 ||  castleFEN.indexOf('K') > -1) && castleAlertWhite.current === false ) {
+            onOpen('castle', castlinAlert);                    
+            castleAlertWhite.current = true;
+        }
+        if ( color === 'b' && (castleFEN.indexOf('q') > -1 ||  castleFEN.indexOf('k') > -1) && castleAlertBlack.current === false ) {
+            onOpen('castle', castlinAlert);
+            castleAlertBlack.current = true;
+        }
 
         if (isOpponentSelf) {
             if (checkMate) {
