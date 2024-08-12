@@ -55,6 +55,7 @@ export default function Board(
     const { onOpen } = useAlertContext();
     const castleAlertWhite = useRef(false);
     const castleAlertBlack = useRef(false);
+    const sourceSquare = useRef('');
 
     useEffect(() => {
         if (isBoardOpenByBoth === true) {return;}
@@ -264,7 +265,11 @@ export default function Board(
     });
 
     async function handleDragEnd({over} : {over: any}) {
+
       try {
+        // if the user decided to abort his move, i.e. put the piece back where it started
+        if (over.id === sourceSquare.current) { return; }
+
         if (!(whoMovesNext === registrationID ||
               whoMovesNext === 'undetermined' ||
               whoMovesNext === 'self')) {
@@ -402,7 +407,11 @@ export default function Board(
       }
     }
 
-    function handleDragStart(e: any){
+    function handleDragStart(e: any) {
+        const srcSq = Object.keys(squares).find((square) => {
+            return squares[square][0] === e.active.id;
+        });
+        if (srcSq) { sourceSquare.current = srcSq; }
         setActiveDraggable(e.active.id);
     }
 
