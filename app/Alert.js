@@ -73,16 +73,16 @@ export function NewlineText({children}) {
     // if the text is in the form of an array with * bullets preceeding each line
     return children.map(str => {
       if (str.charAt(0) === '*') {
-        return <div key={str.charAt(2, 5)} className="flex flex-row">
+        return <div key={str} className="flex flex-row">
           <p className="pr-2">*</p>
           <p>{str.substr(2)}</p>
         </div>
       } else {
-        return <p key={str.charAt(0)}>{str}</p>;
+        return <p key={str}>{str}</p>;
       }
     });
   } else {
     // if justy an ordinary string with or without line breaks ('\n')s
-    return children.split('\n').map(str => <p key={str.charAt(0)}>{str}</p>);
+    return children.split('\n').map(str => <p key={str}>{str}</p>);
   }
 }
